@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>COSMO-SCAN | Autonomous Crew Health & AR Bio-Mirror</title>
+  <title>COSMO-SCAN | Autonomous Crew Health & Clinical Decision System</title>
   
-  <!-- Modern Clean Google Fonts -->
+  <!-- Premium Fonts: Plus Jakarta Sans & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   
   <!-- MediaPipe Pose for Real-time Computer Vision AR Tracking -->
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
@@ -16,35 +16,34 @@
 
   <style>
     :root {
-      --bg-deep: #060911;
-      --surface-1: rgba(14, 20, 36, 0.72);
-      --surface-2: rgba(20, 30, 52, 0.6);
-      --surface-card: rgba(15, 23, 42, 0.65);
-      --border-subtle: rgba(255, 255, 255, 0.08);
-      --border-hover: rgba(56, 189, 248, 0.35);
+      --bg-base: #0c0f18;
+      --bg-surface: #141827;
+      --bg-card: #191f33;
+      --bg-card-hover: #212942;
+      --border-card: rgba(255, 255, 255, 0.07);
+      --border-accent: rgba(129, 140, 248, 0.35);
       
-      /* Refined Minimalist Aerospace Palette (No Harsh Neons) */
-      --accent-primary: #38bdf8;       /* Sleek Sky / Azure */
-      --accent-secondary: #818cf8;     /* Indigo / Iris */
-      --accent-success: #34d399;       /* Emerald */
-      --accent-warning: #fbbf24;       /* Warm Solar Amber */
-      --accent-danger: #f87171;        /* Soft Coral Red */
+      /* Halo Lab / Simula AI Inspired Palette */
+      --accent-violet: #8b5cf6;
+      --accent-indigo: #6366f1;
+      --accent-cyan: #38bdf8;
+      --accent-teal: #2dd4bf;
+      --accent-coral: #fb7185;
+      --accent-amber: #fbbf24;
       
-      --text-primary: #f8fafc;
-      --text-secondary: #94a3b8;
-      --text-muted: #64748b;
-      
-      --font-display: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-faint: #64748b;
+
+      --font-ui: 'Plus Jakarta Sans', -apple-system, sans-serif;
       --font-mono: 'JetBrains Mono', monospace;
       
       --radius-sm: 8px;
       --radius-md: 14px;
       --radius-lg: 20px;
-      --radius-full: 9999px;
+      --radius-pill: 9999px;
       
-      --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
-      --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     * {
@@ -55,1131 +54,1140 @@
     }
 
     body {
-      background-color: var(--bg-deep);
-      color: var(--text-primary);
-      font-family: var(--font-body);
-      height: 100vh;
-      overflow: hidden;
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: var(--font-ui);
+      min-height: 100vh;
+      overflow-x: hidden;
       display: flex;
       flex-direction: column;
       position: relative;
     }
 
-    /* Ambient Dynamic Backdrop (Organic Evolving Gradient Mesh, No Cheap Scanlines) */
-    .ambient-glow {
-      position: absolute;
-      inset: 0;
+    /* Subtle Ambient Blur Sphere behind central visual */
+    .ambient-glow-sphere {
+      position: fixed;
+      top: 30%;
+      left: 35%;
+      width: 520px;
+      height: 520px;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.12) 0%, rgba(56, 189, 248, 0.05) 50%, transparent 70%);
+      filter: blur(100px);
       pointer-events: none;
       z-index: 0;
-      overflow: hidden;
     }
 
-    .ambient-sphere-1 {
-      position: absolute;
-      top: -20%;
-      left: 20%;
-      width: 700px;
-      height: 700px;
-      background: radial-gradient(circle, rgba(56, 189, 248, 0.09) 0%, rgba(99, 102, 241, 0.04) 50%, transparent 70%);
-      filter: blur(80px);
-      animation: floatOrbit1 22s ease-in-out infinite alternate;
-    }
-
-    .ambient-sphere-2 {
-      position: absolute;
-      bottom: -15%;
-      right: 15%;
-      width: 650px;
-      height: 650px;
-      background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, rgba(52, 211, 153, 0.03) 50%, transparent 70%);
-      filter: blur(90px);
-      animation: floatOrbit2 28s ease-in-out infinite alternate;
-    }
-
-    @keyframes floatOrbit1 {
-      0% { transform: translate(0, 0) scale(1); }
-      100% { transform: translate(60px, 80px) scale(1.15); }
-    }
-
-    @keyframes floatOrbit2 {
-      0% { transform: translate(0, 0) scale(1); }
-      100% { transform: translate(-80px, -60px) scale(1.1); }
-    }
-
-    /* Header Bar: Apple / SpaceX Crew Dragon Minimalist Style */
+    /* Top Navigation Bar */
     header {
       height: 68px;
-      background: rgba(10, 15, 29, 0.75);
-      border-bottom: 1px solid var(--border-subtle);
-      backdrop-filter: blur(28px) saturate(180%);
+      padding: 0 32px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 28px;
-      z-index: 30;
-      position: relative;
+      border-bottom: 1px solid var(--border-card);
+      background: rgba(12, 15, 24, 0.85);
+      backdrop-filter: blur(20px);
+      z-index: 40;
     }
 
-    .brand-group {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .logo-badge {
-      width: 40px;
-      height: 40px;
-      border-radius: var(--radius-md);
-      background: linear-gradient(135deg, rgba(56, 189, 248, 0.2) 0%, rgba(99, 102, 241, 0.15) 100%);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: var(--font-display);
-      font-weight: 800;
-      font-size: 14px;
-      color: #fff;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-    }
-
-    .logo-badge::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, transparent 40%, rgba(255, 255, 255, 0.25) 100%);
-    }
-
-    .brand-meta h1 {
-      font-family: var(--font-display);
-      font-size: 17px;
-      font-weight: 700;
-      letter-spacing: -0.3px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: #fff;
-    }
-
-    .brand-meta h1 .version-tag {
-      font-size: 10px;
-      font-family: var(--font-mono);
-      font-weight: 500;
-      padding: 2px 7px;
-      border-radius: var(--radius-full);
-      background: rgba(56, 189, 248, 0.12);
-      color: var(--accent-primary);
-      border: 1px solid rgba(56, 189, 248, 0.25);
-    }
-
-    .brand-meta p {
-      font-size: 11px;
-      color: var(--text-secondary);
-      font-weight: 400;
-      margin-top: 1px;
-    }
-
-    .header-telemetry-strip {
-      display: flex;
-      align-items: center;
-      gap: 32px;
-    }
-
-    .telem-pill {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-    }
-
-    .telem-pill .telem-key {
-      font-size: 10px;
-      font-family: var(--font-mono);
-      color: var(--text-muted);
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-    }
-
-    .telem-pill .telem-val {
-      font-family: var(--font-mono);
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-primary);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .indicator-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--accent-success);
-      box-shadow: 0 0 8px rgba(52, 211, 153, 0.6);
-      animation: softBreathe 2.4s ease-in-out infinite alternate;
-    }
-
-    @keyframes softBreathe {
-      from { opacity: 0.5; transform: scale(0.9); }
-      to { opacity: 1; transform: scale(1.1); }
-    }
-
-    .sound-control-btn {
-      width: 36px;
-      height: 36px;
-      border-radius: var(--radius-sm);
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--border-subtle);
-      color: var(--text-secondary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.2s var(--ease-smooth);
-    }
-
-    .sound-control-btn:hover {
-      background: rgba(255, 255, 255, 0.09);
-      color: #fff;
-      border-color: rgba(255, 255, 255, 0.18);
-    }
-
-    /* Main Grid Viewport */
-    .viewport {
-      flex: 1;
-      display: grid;
-      grid-template-columns: 340px 1fr 380px;
-      position: relative;
-      overflow: hidden;
-      z-index: 10;
-    }
-
-    /* Sidebars: Ultra-Smooth Frosted Glassmorphism */
-    .glass-sidebar {
-      background: var(--surface-1);
-      backdrop-filter: blur(28px) saturate(180%);
-      border-right: 1px solid var(--border-subtle);
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      overflow-y: auto;
-      z-index: 20;
-    }
-
-    .glass-sidebar.right {
-      border-right: none;
-      border-left: 1px solid var(--border-subtle);
-    }
-
-    /* Sleek Cards */
-    .ui-card {
-      background: var(--surface-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      padding: 16px;
-      transition: border-color 0.3s var(--ease-smooth), transform 0.3s var(--ease-smooth), box-shadow 0.3s var(--ease-smooth);
-      position: relative;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.18);
-    }
-
-    .ui-card:hover {
-      border-color: var(--border-hover);
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.28);
-    }
-
-    .card-header-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 12px;
-    }
-
-    .card-caption {
-      font-family: var(--font-display);
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-    }
-
-    .card-action-link {
-      font-size: 11px;
-      color: var(--accent-primary);
-      text-decoration: none;
-      cursor: pointer;
-      transition: opacity 0.2s;
-    }
-
-    .card-action-link:hover { opacity: 0.8; }
-
-    /* Interactive Animated Mode Switcher */
-    .mode-stack {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      position: relative;
-    }
-
-    .mode-pill {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      border-radius: var(--radius-md);
-      padding: 12px 14px;
+    .brand-cluster {
       display: flex;
       align-items: center;
       gap: 14px;
-      cursor: pointer;
-      transition: all 0.25s var(--ease-smooth);
-      position: relative;
-      overflow: hidden;
-      text-align: left;
     }
 
-    .mode-pill:hover {
-      background: rgba(255, 255, 255, 0.06);
-      border-color: rgba(255, 255, 255, 0.12);
-      transform: translateX(3px);
-    }
-
-    .mode-pill.active {
-      background: linear-gradient(135deg, rgba(56, 189, 248, 0.12) 0%, rgba(99, 102, 241, 0.08) 100%);
-      border-color: rgba(56, 189, 248, 0.4);
-      box-shadow: 0 4px 20px rgba(56, 189, 248, 0.08);
-      transform: translateX(4px);
-    }
-
-    .mode-pill.active::before {
-      content: "";
-      position: absolute;
-      left: 0;
-      top: 15%;
-      bottom: 15%;
-      width: 3px;
-      border-radius: var(--radius-full);
-      background: var(--accent-primary);
-    }
-
-    .mode-icon-box {
-      width: 36px;
-      height: 36px;
+    .nasa-pill {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      background: linear-gradient(135deg, #1e3a8a 0%, #312e81 100%);
+      padding: 4px 10px;
       border-radius: var(--radius-sm);
-      background: rgba(255, 255, 255, 0.05);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-      flex-shrink: 0;
-      transition: all 0.25s var(--ease-smooth);
-    }
-
-    .mode-pill.active .mode-icon-box {
-      background: rgba(56, 189, 248, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.15);
       color: #fff;
     }
 
-    .mode-text-group strong {
-      font-family: var(--font-display);
+    .brand-title {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+      border-left: 1px solid rgba(255, 255, 255, 0.12);
+      padding-left: 10px;
+      margin-left: 4px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .date-badge {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-muted);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-pill);
+      padding: 6px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .crew-avatar-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-pill);
+      padding: 4px 12px 4px 5px;
+      cursor: pointer;
+      transition: all 0.2s var(--ease);
+    }
+
+    .crew-avatar-badge:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .avatar-img {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #8b5cf6, #38bdf8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .avatar-info {
       font-size: 12px;
       font-weight: 600;
       color: #fff;
-      display: block;
-      margin-bottom: 2px;
     }
 
-    .mode-text-group span {
-      font-size: 11px;
-      color: var(--text-secondary);
-      line-height: 1.3;
-      display: block;
-    }
-
-    /* Center Stage (AR Bio-Mirror) */
-    .stage-wrapper {
+    /* Main Dashboard Layout */
+    .dashboard-grid {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 410px;
+      padding: 28px 32px;
+      gap: 28px;
       position: relative;
-      background: #03050a;
+      z-index: 10;
+    }
+
+    /* Left Visual Stage */
+    .diagnostic-stage {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
       overflow: hidden;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
+    }
+
+    .stage-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 24px;
+      z-index: 10;
+    }
+
+    .exam-title-block h2 {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.6px;
+      color: #fff;
+      line-height: 1.25;
+      max-width: 500px;
+    }
+
+    .exam-title-block p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    .exam-meta-stats {
+      display: flex;
+      gap: 24px;
+    }
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stat-item .label {
+      font-size: 10px;
+      color: var(--text-faint);
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-item .val {
+      font-size: 14px;
+      font-weight: 600;
+      font-family: var(--font-mono);
+      color: var(--text-main);
+      margin-top: 2px;
+    }
+
+    /* Central Interactive Visual Area */
+    .visual-viewport {
+      flex: 1;
       display: flex;
       align-items: center;
       justify-content: center;
+      position: relative;
+      min-height: 480px;
+    }
+
+    /* SVG Anatomical Profile Canvas */
+    .anatomy-svg-wrapper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #interactive-canvas, #ar-camera-canvas {
+      width: 100%;
+      height: 100%;
+      border-radius: var(--radius-md);
+      position: absolute;
+      inset: 0;
     }
 
     #webcam-video {
       display: none;
     }
 
-    #ar-canvas {
+    /* View Switcher Controls at Bottom Left (Front View / Sagittal / Live AR) */
+    .view-switcher-dock {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transform: scaleX(-1); /* mirror */
+      bottom: 24px;
+      left: 24px;
+      display: flex;
+      gap: 10px;
+      z-index: 20;
     }
 
-    /* Minimalist Precision Viewfinder (No tacky thick HUD corners) */
-    .viewfinder-hud {
-      position: absolute;
-      inset: 28px;
-      pointer-events: none;
-      z-index: 15;
+    .view-card-thumb {
+      width: 110px;
+      background: rgba(25, 31, 51, 0.85);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-md);
+      padding: 8px 10px;
+      cursor: pointer;
+      backdrop-filter: blur(12px);
+      transition: all 0.25s var(--ease);
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+      gap: 4px;
     }
 
-    .viewfinder-top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    .view-card-thumb:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
     }
 
-    .stream-pill {
-      background: rgba(15, 23, 42, 0.7);
-      backdrop-filter: blur(16px);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-full);
-      padding: 6px 14px;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-family: var(--font-mono);
+    .view-card-thumb.active {
+      border-color: var(--accent-violet);
+      background: rgba(139, 92, 246, 0.15);
+      box-shadow: 0 4px 16px rgba(139, 92, 246, 0.25);
+    }
+
+    .thumb-label {
       font-size: 11px;
-      color: var(--text-primary);
+      font-weight: 600;
+      color: #fff;
     }
 
-    .stream-pill .dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--accent-success);
-      box-shadow: 0 0 10px rgba(52, 211, 153, 0.7);
+    .thumb-status {
+      font-size: 9px;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
     }
 
-    /* Subtle Volumetric Scanner Beam (Gentle Smooth Gradient Wash) */
-    .volumetric-sweep-wash {
+    /* Stage Bottom Right Action Dock */
+    .stage-action-dock {
       position: absolute;
-      left: 0;
-      width: 100%;
-      height: 180px;
-      background: linear-gradient(180deg, 
-        transparent 0%, 
-        rgba(56, 189, 248, 0.02) 20%, 
-        rgba(56, 189, 248, 0.08) 85%, 
-        rgba(56, 189, 248, 0.22) 100%);
-      border-bottom: 1.5px solid rgba(56, 189, 248, 0.45);
-      pointer-events: none;
-      animation: smoothDepthSweep 6.5s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite alternate;
+      bottom: 24px;
+      right: 24px;
+      display: flex;
+      gap: 12px;
+      z-index: 20;
     }
 
-    @keyframes smoothDepthSweep {
-      0% { top: -20px; opacity: 0.3; }
-      50% { opacity: 0.85; }
-      100% { top: calc(100% - 160px); opacity: 0.3; }
-    }
-
-    /* Stage Controls Dock (Modern Dynamic Island Style) */
-    .stage-dock {
-      position: absolute;
-      bottom: 28px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(15, 23, 42, 0.82);
-      backdrop-filter: blur(28px) saturate(200%);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: var(--radius-full);
-      padding: 6px 10px;
+    .icon-action-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-md);
+      background: rgba(25, 31, 51, 0.85);
+      border: 1px solid var(--border-card);
+      color: #fff;
       display: flex;
       align-items: center;
-      gap: 8px;
-      z-index: 25;
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+      justify-content: center;
+      cursor: pointer;
+      backdrop-filter: blur(12px);
+      transition: all 0.2s var(--ease);
+      font-size: 18px;
     }
 
-    .dock-btn {
-      background: transparent;
+    .icon-action-btn:hover {
+      background: var(--bg-card-hover);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .primary-scan-btn {
+      height: 44px;
+      padding: 0 20px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, var(--accent-violet) 0%, var(--accent-indigo) 100%);
       border: none;
-      color: var(--text-primary);
-      padding: 9px 18px;
-      border-radius: var(--radius-full);
-      font-family: var(--font-display);
-      font-size: 12px;
+      color: #fff;
+      font-family: var(--font-ui);
+      font-size: 13px;
       font-weight: 600;
       cursor: pointer;
       display: flex;
       align-items: center;
       gap: 8px;
-      transition: all 0.25s var(--ease-smooth);
+      box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35);
+      transition: all 0.25s var(--ease);
     }
 
-    .dock-btn:hover {
-      background: rgba(255, 255, 255, 0.08);
-      color: #fff;
-    }
-
-    .dock-btn.active {
-      background: rgba(56, 189, 248, 0.18);
-      color: var(--accent-primary);
-      border: 1px solid rgba(56, 189, 248, 0.3);
-    }
-
-    .dock-btn.primary {
-      background: linear-gradient(135deg, #2563eb 0%, #38bdf8 100%);
-      color: #fff;
-      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
-    }
-
-    .dock-btn.primary:hover {
+    .primary-scan-btn:hover {
       transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
+      box-shadow: 0 8px 24px rgba(99, 102, 241, 0.5);
     }
 
-    /* Metric Gauges */
-    .metric-item {
+    /* Interactive Pinpoint Tooltip Hotspots */
+    .anatomy-pin {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(139, 92, 246, 0.2);
+      border: 2px solid var(--accent-violet);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.25s var(--ease);
+      box-shadow: 0 0 12px rgba(139, 92, 246, 0.5);
+      z-index: 25;
+    }
+
+    .anatomy-pin:hover {
+      transform: scale(1.25);
+      background: var(--accent-violet);
+      border-color: #fff;
+    }
+
+    .pin-tooltip {
+      position: absolute;
+      left: 32px;
+      top: -12px;
+      background: rgba(15, 20, 34, 0.95);
+      border: 1px solid var(--border-accent);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      width: 230px;
+      pointer-events: none;
+      backdrop-filter: blur(14px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+      opacity: 0;
+      transform: translateX(-6px);
+      transition: all 0.25s var(--ease);
+    }
+
+    .anatomy-pin:hover .pin-tooltip {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .pin-tooltip h4 {
+      font-size: 12px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 3px;
+    }
+
+    .pin-tooltip p {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.35;
+    }
+
+    /* Right Side Cards (Simula AI Style Stack) */
+    .diagnostic-panel-stack {
       display: flex;
       flex-direction: column;
-      gap: 6px;
-      margin-bottom: 14px;
+      gap: 18px;
     }
 
-    .metric-item:last-child { margin-bottom: 0; }
-
-    .metric-meta-line {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 12px;
-    }
-
-    .metric-label {
-      color: var(--text-secondary);
-      font-weight: 500;
-    }
-
-    .metric-digit {
-      font-family: var(--font-mono);
-      font-weight: 600;
-      color: #fff;
-    }
-
-    .track-bar {
-      height: 6px;
-      background: rgba(255, 255, 255, 0.06);
-      border-radius: var(--radius-full);
-      overflow: hidden;
+    .side-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
       position: relative;
     }
 
-    .fill-bar {
-      height: 100%;
-      border-radius: var(--radius-full);
-      background: linear-gradient(90deg, #38bdf8, #818cf8);
-      transition: width 0.6s var(--ease-smooth);
+    /* Top Card: AI Conclusion Card with Soft Violet Gradient */
+    .ai-conclusion-card {
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(99, 102, 241, 0.1) 100%), var(--bg-card);
+      border: 1px solid rgba(139, 92, 246, 0.35);
+      box-shadow: 0 8px 32px rgba(139, 92, 246, 0.12);
     }
 
-    .fill-bar.warning { background: linear-gradient(90deg, #fbbf24, #f97316); }
-    .fill-bar.danger { background: linear-gradient(90deg, #f87171, #ef4444); }
-
-    /* Countermeasure Card */
-    .prescript-card {
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid var(--border-subtle);
-      border-left: 3px solid var(--accent-primary);
-      border-radius: var(--radius-sm);
-      padding: 12px;
-      margin-top: 10px;
+    .conclusion-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
     }
 
-    .prescript-card h4 {
-      font-family: var(--font-display);
-      font-size: 12px;
+    .conclusion-title {
+      font-size: 14px;
       font-weight: 700;
       color: #fff;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
+    }
+
+    .sparkle-badge {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: rgba(139, 92, 246, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-violet);
+      font-size: 12px;
+    }
+
+    .conclusion-text {
+      font-size: 12px;
+      color: #cbd5e1;
+      line-height: 1.5;
+      margin-bottom: 18px;
+    }
+
+    .vitals-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .v-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .v-item .v-lbl {
+      font-size: 10px;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .v-item .v-val {
+      font-size: 13px;
+      font-weight: 600;
+      font-family: var(--font-mono);
+      color: #fff;
+      margin-top: 2px;
+    }
+
+    /* Exams History Cards Grid */
+    .exams-header-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .exams-header-line h3 {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .exams-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .exam-thumb-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-md);
+      aspect-ratio: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s var(--ease);
+      padding: 6px;
+      text-align: center;
+    }
+
+    .exam-thumb-box:hover {
+      border-color: var(--accent-violet);
+      background: var(--bg-card-hover);
+      transform: scale(1.03);
+    }
+
+    .exam-thumb-box.active {
+      border-color: var(--accent-violet);
+      background: rgba(139, 92, 246, 0.15);
+    }
+
+    .exam-thumb-box .icon {
+      font-size: 20px;
       margin-bottom: 4px;
     }
 
-    .prescript-card p {
-      font-size: 11px;
-      color: var(--text-secondary);
-      line-height: 1.45;
+    .exam-thumb-box .title {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-muted);
     }
 
-    /* Ultrasound Waveform Canvas */
-    #ultrasound-monitor {
+    /* Recovery Analytics / Countermeasures Tracking Card */
+    .recovery-card h3 {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+
+    #recovery-chart-canvas {
       width: 100%;
-      height: 115px;
-      background: rgba(8, 12, 22, 0.85);
-      border-radius: var(--radius-sm);
-      border: 1px solid rgba(255, 255, 255, 0.06);
+      height: 90px;
       display: block;
-      margin-top: 8px;
     }
 
-    /* Modal Backdrop */
-    .modal-backdrop {
+    .timeline-axis {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 8px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-faint);
+    }
+
+    /* NASA Prescription Box */
+    .countermeasure-pill-box {
+      margin-top: 12px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      font-size: 11px;
+      line-height: 1.4;
+      color: var(--text-muted);
+    }
+
+    .countermeasure-pill-box strong {
+      color: var(--accent-cyan);
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    /* Modal Sheet */
+    .modal-sheet {
       position: fixed;
       inset: 0;
-      background: rgba(3, 5, 10, 0.8);
+      background: rgba(8, 11, 20, 0.85);
       backdrop-filter: blur(20px);
       display: none;
       align-items: center;
       justify-content: center;
       z-index: 100;
-      opacity: 0;
-      transition: opacity 0.3s var(--ease-smooth);
     }
 
-    .modal-backdrop.show {
+    .modal-sheet.open {
       display: flex;
-      opacity: 1;
     }
 
-    .modal-container {
-      width: 600px;
-      background: #0b1120;
-      border: 1px solid rgba(255, 255, 255, 0.12);
+    .modal-content {
+      width: 620px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-accent);
       border-radius: var(--radius-lg);
       padding: 28px;
-      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.6);
-      transform: scale(0.96);
-      transition: transform 0.3s var(--ease-smooth);
-    }
-
-    .modal-backdrop.show .modal-container {
-      transform: scale(1);
-    }
-
-    .report-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 18px 0;
-      font-size: 12px;
-      font-family: var(--font-mono);
-    }
-
-    .report-table td, .report-table th {
-      padding: 10px 14px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-      text-align: left;
-    }
-
-    .report-table th {
-      color: var(--text-muted);
-      font-weight: 500;
-    }
-
-    .report-table td {
-      color: var(--text-primary);
-    }
-
-    /* Input styling */
-    select, input {
-      width: 100%;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-sm);
-      padding: 8px 12px;
-      color: var(--text-primary);
-      font-family: var(--font-mono);
-      font-size: 12px;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    select:focus, input:focus {
-      border-color: var(--accent-primary);
-    }
-
-    option {
-      background: #0b1120;
-      color: #fff;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
     }
   </style>
 </head>
 <body>
 
-  <!-- Background Ambient Fluid Lights -->
-  <div class="ambient-glow">
-    <div class="ambient-sphere-1"></div>
-    <div class="ambient-sphere-2"></div>
-  </div>
+  <!-- Ambient Dynamic Lighting Sphere -->
+  <div class="ambient-glow-sphere"></div>
 
-  <!-- Header -->
+  <!-- Top Navigation Header (Simula AI Clean Style) -->
   <header>
-    <div class="brand-group">
-      <div class="logo-badge">CS</div>
-      <div class="brand-meta">
-        <h1>COSMO-SCAN <span class="version-tag">NASA HRP 2.4</span></h1>
-        <p>Autonomous AR Bio-Diagnostic Mirror & Spaceflight Clinical Decision Support</p>
+    <div class="brand-cluster">
+      <div class="nasa-pill">NASA HRP</div>
+      <div class="brand-title">
+        COSMO-SCAN
+        <span class="brand-subtitle">Autonomous Clinical Diagnosis & Spaceflight Countermeasures</span>
       </div>
     </div>
 
-    <div class="header-telemetry-strip">
-      <div class="telem-pill">
-        <span class="telem-key">MISSION ORBIT</span>
-        <span class="telem-val">ARTEMIS-III // SOL 142</span>
+    <div class="header-right">
+      <div class="date-badge">
+        <span>📅</span>
+        <span id="sol-date">Sol 142 • Artemis Deep Space Transit</span>
       </div>
 
-      <div class="telem-pill">
-        <span class="telem-key">HABITAT GRAVITY</span>
-        <span class="telem-val">0.38G (LUNAR TRANSIT)</span>
+      <div class="crew-avatar-badge" onclick="alert('Subject: CDR. Alexa Vance\nMission: Artemis III Transit\nStatus: Fit for Duty / Monitoring SANS')">
+        <div class="avatar-img">AV</div>
+        <div class="avatar-info">CDR. Vance</div>
       </div>
-
-      <div class="telem-pill">
-        <span class="telem-key">EARTH COMMS LATENCY</span>
-        <span class="telem-val">
-          <span class="indicator-dot"></span>
-          03m 42s (AUTONOMOUS)
-        </span>
-      </div>
-
-      <button class="sound-control-btn" id="btn-sound" title="Toggle Spatial Audio">🔊</button>
     </div>
   </header>
 
-  <!-- Main Viewport -->
-  <div class="viewport">
+  <!-- Main Dashboard Grid -->
+  <div class="dashboard-grid">
     
-    <!-- LEFT PANEL: CREW PROFILE & SCAN MODES -->
-    <div class="glass-sidebar">
+    <!-- LEFT MAIN DIAGNOSTIC STAGE -->
+    <div class="diagnostic-stage">
       
-      <!-- Crew Profile Card -->
-      <div class="ui-card">
-        <div class="card-header-row">
-          <span class="card-caption">ACTIVE ASTRONAUT</span>
-          <span class="card-action-link">Switch Crew</span>
-        </div>
-        <select id="crew-select">
-          <option value="cdr">CDR. ALEXA VANCE (Commander)</option>
-          <option value="fe1">DR. RAJAT SHARMA (Flight Surgeon)</option>
-          <option value="fe2">SPEC. MARCUS LEVI (EVA Specialist)</option>
-        </select>
-        <div style="display:flex; justify-content:space-between; margin-top:10px; font-size:11px; font-family:var(--font-mono);">
-          <span style="color:var(--text-muted)">CUMULATIVE RADIATION:</span>
-          <span style="color:var(--accent-warning); font-weight:600;">42.8 mSv / 150 Limit</span>
-        </div>
-      </div>
-
-      <!-- AR Scan Modes Switcher -->
-      <div class="ui-card">
-        <div class="card-header-row">
-          <span class="card-caption">DIAGNOSTIC MODES</span>
-          <span style="font-size:10px; font-family:var(--font-mono); color:var(--text-muted);">LIVE AR</span>
+      <!-- Stage Header with Primary Exam Title -->
+      <div class="stage-header">
+        <div class="exam-title-block">
+          <h2 id="active-exam-title">X-ray of cervical & lumbar spinal decompression</h2>
+          <p id="active-exam-desc">Microgravity axial unload causing L1-L5 intervertebral disc distension & cephalic venous fluid migration.</p>
         </div>
 
-        <div class="mode-stack">
-          
-          <button class="mode-pill active" data-mode="xray" onclick="setScanMode('xray')">
-            <div class="mode-icon-box">🦴</div>
-            <div class="mode-text-group">
-              <strong>Skeletal X-Ray & Spine</strong>
-              <span>Zero-g spinal elongation & osteopenia decay</span>
-            </div>
-          </button>
-
-          <button class="mode-pill" data-mode="ultrasound" onclick="setScanMode('ultrasound')">
-            <div class="mode-icon-box">🫀</div>
-            <div class="mode-text-group">
-              <strong>Thoracic & Doppler Ultrasound</strong>
-              <span>Cardiac chamber elastance & fluid margins</span>
-            </div>
-          </button>
-
-          <button class="mode-pill" data-mode="fluid" onclick="setScanMode('fluid')">
-            <div class="mode-icon-box">🌊</div>
-            <div class="mode-text-group">
-              <strong>Cephalic Fluid Shift & SANS</strong>
-              <span>Cranial venous congestion & optic sheath index</span>
-            </div>
-          </button>
-
-          <button class="mode-pill" data-mode="thermal" onclick="setScanMode('thermal')">
-            <div class="mode-icon-box">🌡️</div>
-            <div class="mode-text-group">
-              <strong>Metabolic & Core Thermal</strong>
-              <span>Circadian thermoregulation & inflammation</span>
-            </div>
-          </button>
-
-        </div>
-
-        <div style="margin-top:12px; padding:10px; background:rgba(255,255,255,0.03); border-radius:var(--radius-sm); border:1px dashed var(--border-subtle); display:flex; gap:10px; align-items:center;">
-          <span style="font-size:16px;">🖐️</span>
-          <span style="font-size:11px; color:var(--text-secondary); line-height:1.4;">
-            <strong>Touchless Navigation:</strong> Raise your right hand above shoulder level in zero-g to cycle scan modes.
-          </span>
-        </div>
-      </div>
-
-      <!-- Real-time B-Scan Ultrasound Sonogram -->
-      <div class="ui-card">
-        <div class="card-header-row">
-          <span class="card-caption">B-SCAN ULTRASOUND TRANSDUCER</span>
-          <span style="font-size:10px; font-family:var(--font-mono); color:var(--accent-success);">7.5 MHz SMOOTH</span>
-        </div>
-        <canvas id="ultrasound-monitor"></canvas>
-        <div style="margin-top:8px; display:flex; justify-content:space-between; font-size:11px; font-family:var(--font-mono);">
-          <span style="color:var(--text-muted)">EJECTION FRACTION:</span>
-          <span style="color:var(--accent-success); font-weight:600;">64% (Nominal)</span>
-        </div>
-      </div>
-
-      <!-- Quick Manual Lab Telemetry -->
-      <div class="ui-card">
-        <div class="card-header-row">
-          <span class="card-caption">CREW BIO-SAMPLE TELEMETRY</span>
-        </div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-          <div>
-            <label style="font-size:10px; color:var(--text-muted); display:block; margin-bottom:4px;">BLOOD SUGAR</label>
-            <input type="number" id="input-glucose" value="98" min="50" max="300" onchange="updateVitals()">
+        <div class="exam-meta-stats">
+          <div class="stat-item">
+            <span class="label">Sex and age</span>
+            <span class="val">Female, 36</span>
           </div>
-          <div>
-            <label style="font-size:10px; color:var(--text-muted); display:block; margin-bottom:4px;">SLEEP DURATION</label>
-            <input type="number" id="input-sleep" value="6.5" step="0.1" min="0" max="14" onchange="updateVitals()">
+          <div class="stat-item">
+            <span class="label">Bio Index</span>
+            <span class="val" style="color:var(--accent-cyan);">204 (Nominal)</span>
+          </div>
+          <div class="stat-item">
+            <span class="label">Gravity</span>
+            <span class="val">0.38G</span>
           </div>
         </div>
       </div>
 
-    </div>
-
-    <!-- CENTER AR STAGE -->
-    <div class="stage-wrapper" id="stage-wrapper">
-      
-      <!-- Hidden Video Element for MediaPipe -->
-      <video id="webcam-video" playsinline></video>
-      
-      <!-- Render Canvas -->
-      <canvas id="ar-canvas"></canvas>
-
-      <!-- Minimalist Viewfinder & Smooth Volumetric Sweep -->
-      <div class="viewfinder-hud">
-        <div class="viewfinder-top-bar">
-          <div class="stream-pill">
-            <span class="dot"></span>
-            <span id="hud-status-text">COSMO-SCAN KINETIC TRACKER ACTIVE</span>
-          </div>
-
-          <div class="stream-pill" style="font-family:var(--font-mono);">
-            60 FPS // LERP SMOOTHED
-          </div>
-        </div>
-
-        <div class="volumetric-sweep-wash"></div>
-      </div>
-
-      <!-- Stage Floating Dock -->
-      <div class="stage-dock">
-        <button class="dock-btn active" id="btn-camera" onclick="toggleCamera()">
-          <span>📷</span> <span id="camera-btn-text">START AR BIO-MIRROR</span>
-        </button>
-
-        <button class="dock-btn" id="btn-simulation" onclick="toggleSimulation()">
-          <span>🤖</span> <span id="sim-btn-text">SIMULATE ASTRONAUT</span>
-        </button>
-
-        <button class="dock-btn primary" onclick="triggerFullBodyScan()">
-          <span>⚡</span> CLINICAL TRIAGE
-        </button>
-      </div>
-
-    </div>
-
-    <!-- RIGHT PANEL: DIAGNOSTIC READOUT & COUNTERMEASURES -->
-    <div class="glass-sidebar right">
-      
-      <!-- Biometric Telemetry -->
-      <div class="ui-card">
-        <div class="card-header-row">
-          <span class="card-caption">PHYSIOLOGICAL TELEMETRY</span>
-          <span style="font-size:10px; font-family:var(--font-mono); color:var(--text-muted);">REAL-TIME</span>
-        </div>
-
-        <div class="metric-item">
-          <div class="metric-meta-line">
-            <span class="metric-label">Heart Rate (Resting)</span>
-            <span class="metric-digit" id="val-hr">72 BPM</span>
-          </div>
-          <div class="track-bar">
-            <div class="fill-bar" id="bar-hr" style="width: 58%;"></div>
-          </div>
-        </div>
-
-        <div class="metric-item">
-          <div class="metric-meta-line">
-            <span class="metric-label">SpO2 (Blood Oxygen)</span>
-            <span class="metric-digit" id="val-spo2">98%</span>
-          </div>
-          <div class="track-bar">
-            <div class="fill-bar" id="bar-spo2" style="width: 98%;"></div>
-          </div>
-        </div>
-
-        <div class="metric-item">
-          <div class="metric-meta-line">
-            <span class="metric-label">Spinal Decompression</span>
-            <span class="metric-digit" id="val-spine" style="color:var(--accent-warning);">+3.1 cm</span>
-          </div>
-          <div class="track-bar">
-            <div class="fill-bar warning" id="bar-spine" style="width: 62%;"></div>
-          </div>
-        </div>
-
-        <div class="metric-item">
-          <div class="metric-meta-line">
-            <span class="metric-label">Cephalic Fluid Index</span>
-            <span class="metric-digit" id="val-fluid" style="color:var(--accent-warning);">Moderate Distension</span>
-          </div>
-          <div class="track-bar">
-            <div class="fill-bar warning" id="bar-fluid" style="width: 54%;"></div>
-          </div>
-        </div>
-
-        <div class="metric-item">
-          <div class="metric-meta-line">
-            <span class="metric-label">Bone Mineral Decay Rate</span>
-            <span class="metric-digit" id="val-bone" style="color:var(--accent-danger);">-1.2% / Month</span>
-          </div>
-          <div class="track-bar">
-            <div class="fill-bar danger" id="bar-bone" style="width: 70%;"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Autonomous Medical Assessment Findings -->
-      <div class="ui-card">
-        <div class="card-header-row">
-          <span class="card-caption">AUTONOMOUS CLINICAL ASSESSMENT</span>
-        </div>
+      <!-- Central Canvas Viewport -->
+      <div class="visual-viewport" id="viewport-container">
         
-        <div style="font-size:12px; margin-bottom:12px;">
-          <div style="display:flex; align-items:center; gap:6px; color:var(--accent-warning); font-weight:600; margin-bottom:4px;">
-            <span>⚠️</span> Cephalic Venous Fluid Migration
+        <!-- Interactive Simulated Anatomy Canvas (Default Halo-Lab Style Volumetric Model) -->
+        <canvas id="interactive-canvas"></canvas>
+        
+        <!-- Live AR Camera Canvas (Overlayed when camera mode is triggered) -->
+        <video id="webcam-video" playsinline></video>
+        <canvas id="ar-camera-canvas" style="display:none;"></canvas>
+
+        <!-- Pinpoint Hotspots on Cervical / Cranial / Spine -->
+        <div class="anatomy-pin" id="pin-sans" style="top: 26%; left: 47%;">
+          1
+          <div class="pin-tooltip">
+            <h4>SANS Ocular Sheath</h4>
+            <p>Optic nerve sheath diameter expanded to 5.8mm. Zero-g cephalic fluid migration risk.</p>
           </div>
-          <p style="font-size:11px; color:var(--text-secondary); line-height:1.45;">
-            Zero-gravity hydrodynamics have shifted ~2L blood & interstitial fluids toward the upper thoracic and cranium. Mild optic nerve sheath expansion detected.
-          </p>
         </div>
 
-        <div style="font-size:12px;">
-          <div style="display:flex; align-items:center; gap:6px; color:var(--accent-primary); font-weight:600; margin-bottom:4px;">
-            <span>ℹ️</span> Axial Spinal Extension
+        <div class="anatomy-pin" id="pin-cervical" style="top: 42%; left: 52%;">
+          2
+          <div class="pin-tooltip">
+            <h4>C1-C7 Cervical Distension</h4>
+            <p>Axial elongation of +1.1 cm in upper cervical vertebrae. Paraspinal stiffness detected.</p>
           </div>
-          <p style="font-size:11px; color:var(--text-secondary); line-height:1.45;">
-            L1-L5 lumbar disc hydration has increased vertical spine height by +3.1 cm. Mild paraspinal muscular stiffness expected.
-          </p>
+        </div>
+
+        <div class="anatomy-pin" id="pin-lumbar" style="top: 68%; left: 53%;">
+          3
+          <div class="pin-tooltip">
+            <h4>L1-L5 Lumbar Decompression</h4>
+            <p>Total axial expansion: +3.1 cm. Countermeasure: 45 min ARED axial loading required.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Bottom-Left View Switcher (Front View / Sagittal / Live AR Mirror) -->
+      <div class="view-switcher-dock">
+        <div class="view-card-thumb active" id="btn-view-sagittal" onclick="switchView('sagittal')">
+          <span class="thumb-label">Sagittal Scan</span>
+          <span class="thumb-status">Spine & Cervical</span>
+        </div>
+
+        <div class="view-card-thumb" id="btn-view-frontal" onclick="switchView('frontal')">
+          <span class="thumb-label">Frontal View</span>
+          <span class="thumb-status">Full Skeletal</span>
+        </div>
+
+        <div class="view-card-thumb" id="btn-view-ar" onclick="switchView('ar')">
+          <span class="thumb-label">📷 Live AR Mirror</span>
+          <span class="thumb-status">Webcam Tracker</span>
         </div>
       </div>
 
-      <!-- NASA Prescribed Countermeasures -->
-      <div class="ui-card">
-        <div class="card-header-row">
-          <span class="card-caption">NASA COUNTERMEASURES PROTOCOL</span>
+      <!-- Bottom-Right Action Buttons -->
+      <div class="stage-action-dock">
+        <button class="icon-action-btn" title="Download Diagnostic Scan Report" onclick="openModal()">
+          📥
+        </button>
+        <button class="primary-scan-btn" onclick="runAutomatedAssessment()">
+          <span>⚡</span> Re-Assess Vitals
+        </button>
+      </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN: AI CLINICAL DECISION SUPPORT CARDS -->
+    <div class="diagnostic-panel-stack">
+      
+      <!-- CARD 1: AI CONCLUSION (Simula AI Style with soft violet gradient) -->
+      <div class="side-card ai-conclusion-card">
+        <div class="conclusion-header">
+          <div class="conclusion-title">
+            <div class="sparkle-badge">✦</div>
+            Autonomous AI Conclusion
+          </div>
+          <span style="font-size:10px; font-family:var(--font-mono); color:var(--accent-violet);">CONFIDENCE: 96%</span>
         </div>
 
-        <div class="prescript-card">
-          <h4>🏋️ ARED Resistive Exercise</h4>
-          <p>Prescribe 45 min high-load axial loading (deadlifts/squats) at 80% 1RM to prevent bone demineralization in proximal femur.</p>
+        <div class="conclusion-text" id="ai-conclusion-text">
+          Spaceflight-Associated Neuro-ocular Syndrome (SANS) precursor & moderate L1-L5 spinal disc distension identified. No ground surgeon emergency intervention required.
         </div>
 
-        <div class="prescript-card" style="border-left-color: var(--accent-warning);">
-          <h4>👖 Lower Body Negative Pressure (LBNP)</h4>
-          <p>Conduct 35 min session in LBNP chamber at -35 mmHg to draw fluid volume caudal and relieve ocular/cranial pressure.</p>
-        </div>
-
-        <div class="prescript-card" style="border-left-color: var(--accent-success);">
-          <h4>🥗 Micronutrient & Circadian Light</h4>
-          <p>Administer 2000 IU Vitamin D3, 2.1g sodium control, and shift cabin dynamic lighting to 480nm blue-enriched spectrum.</p>
+        <div class="vitals-summary-grid">
+          <div class="v-item">
+            <span class="v-lbl">SpO2</span>
+            <span class="v-val">98%</span>
+          </div>
+          <div class="v-item">
+            <span class="v-lbl">BP</span>
+            <span class="v-val">116/78 mmHg</span>
+          </div>
+          <div class="v-item">
+            <span class="v-lbl">Pain Scale</span>
+            <span class="v-val" style="color:var(--accent-amber);">2/10 (Mild)</span>
+          </div>
         </div>
       </div>
 
-      <!-- Export Telemetry Action Button -->
-      <button class="dock-btn primary" style="width:100%; justify-content:center; padding:12px;" onclick="openReportModal()">
-        📑 EXPORT FLIGHT SURGEON TELEMETRY
-      </button>
+      <!-- CARD 2: EXAMS HISTORY (Clickable anatomical scan targets) -->
+      <div class="side-card">
+        <div class="exams-header-line">
+          <h3>Exams History</h3>
+          <span style="font-size:11px; color:var(--accent-violet); cursor:pointer;">All exams →</span>
+        </div>
+
+        <div class="exams-grid">
+          <div class="exam-thumb-box active" onclick="selectExam('cervical')">
+            <div class="icon">🦴</div>
+            <div class="title">Spine X-Ray</div>
+          </div>
+
+          <div class="exam-thumb-box" onclick="selectExam('sans')">
+            <div class="icon">👁️</div>
+            <div class="title">SANS Ocular</div>
+          </div>
+
+          <div class="exam-thumb-box" onclick="selectExam('cardiac')">
+            <div class="icon">🫀</div>
+            <div class="title">Doppler US</div>
+          </div>
+
+          <div class="exam-thumb-box" onclick="selectExam('femur')">
+            <div class="icon">🦵</div>
+            <div class="title">Femur BMD</div>
+          </div>
+        </div>
+
+        <div class="countermeasure-pill-box" id="exam-countermeasure-desc">
+          <strong>PRESCRIPTION // ARED RESISTIVE ROUTINE</strong>
+          45 min high-load deadlifts (80% 1RM) + 30 min in Lower Body Negative Pressure (LBNP) suit at -35 mmHg to redistribute fluids.
+        </div>
+      </div>
+
+      <!-- CARD 3: RECOVERY ANALYTICS (Smooth spline curve) -->
+      <div class="side-card recovery-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <h3>Recovery Analytics</h3>
+          <span style="font-size:12px; font-weight:700; color:var(--accent-cyan);">9.7% Target</span>
+        </div>
+
+        <canvas id="recovery-chart-canvas"></canvas>
+
+        <div class="timeline-axis">
+          <span>Sol 138</span>
+          <span>Sol 139</span>
+          <span>Sol 140</span>
+          <span>Sol 141</span>
+          <span>Sol 142</span>
+        </div>
+      </div>
 
     </div>
 
   </div>
 
-  <!-- Medical Report Modal -->
-  <div class="modal-backdrop" id="report-modal">
-    <div class="modal-container">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-        <h3 style="font-family:var(--font-display); font-size:16px; font-weight:700; color:#fff;">
-          NASA HUMAN RESEARCH PROGRAM // MEDICAL TELEMETRY
-        </h3>
-        <span style="font-size:11px; font-family:var(--font-mono); color:var(--accent-primary);">ENCRYPTED TLS-3</span>
+  <!-- Medical Encounter Export Modal -->
+  <div class="modal-sheet" id="export-modal">
+    <div class="modal-content">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:16px; font-weight:700; color:#fff;">NASA HUMAN RESEARCH PROGRAM • CLINICAL SUMMARY</h3>
+        <span style="font-family:var(--font-mono); font-size:11px; color:var(--accent-violet);">SECURE ENCRYPTED</span>
       </div>
-      
-      <p style="font-size:12px; color:var(--text-secondary); line-height:1.4;">
-        Autonomous clinical encounter summary compiled for deep-space transit transmission packet.
+
+      <p style="font-size:12px; color:var(--text-muted); line-height:1.5; margin-bottom:16px;">
+        Encrypted telemetry summary compiled for ground flight surgeon synchronization upon Earth communication window opening.
       </p>
 
-      <table class="report-table">
-        <tr><th>SUBJECT</th><td id="rpt-name">CDR. ALEXA VANCE</td></tr>
-        <tr><th>MISSION SOL</th><td>SOL 142 (DEEP SPACE TRANSIT)</td></tr>
-        <tr><th>PHYSIOLOGICAL STATUS</th><td style="color:var(--accent-warning);">SUB-NOMINAL (MONITOR SANS)</td></tr>
-        <tr><th>SPINAL ELONGATION</th><td>+3.1 cm (L1-L5 Hydration)</td></tr>
-        <tr><th>CARDIAC OUTPUT</th><td>5.1 L/min (Stroke Volume Nominal)</td></tr>
-        <tr><th>BLOOD GLUCOSE</th><td id="rpt-glucose">98 mg/dL</td></tr>
-        <tr><th>PRESCRIBED COUNTERMEASURE</th><td>LBNP Suit (35 min) + ARED Routine Beta</td></tr>
-      </table>
+      <div style="background:var(--bg-card); border-radius:var(--radius-sm); padding:14px; font-family:var(--font-mono); font-size:12px; line-height:1.6; margin-bottom:20px;">
+        <div>SUBJECT: CDR. ALEXA VANCE (CDR-01)</div>
+        <div>MISSION: ARTEMIS DEEP SPACE TRANSIT // SOL 142</div>
+        <div>PRIMARY FINDING: L1-L5 Axial Decompression (+3.1cm) & Optic Sheath 5.8mm</div>
+        <div>COUNTERMEASURE: ARED Routine Bravo + LBNP Suit Protocol (-35 mmHg)</div>
+        <div>TRIAGE CODE: CODE GREEN // ONBOARD RESOLVABLE</div>
+      </div>
 
-      <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
-        <button class="dock-btn" onclick="window.print()">🖨️ PRINT / PDF</button>
-        <button class="dock-btn primary" onclick="closeReportModal()">CLOSE</button>
+      <div style="display:flex; justify-content:flex-end; gap:10px;">
+        <button class="icon-action-btn" style="width:auto; padding:0 16px; font-size:12px; font-weight:600;" onclick="window.print()">
+          🖨️ Print / Save PDF
+        </button>
+        <button class="primary-scan-btn" onclick="closeModal()">
+          Close
+        </button>
       </div>
     </div>
   </div>
 
-  <!-- Smooth Cinematic Sound Synthesis (Zero harsh beeps) -->
-  <script>
-    class SpatialSoundEngine {
-      constructor() {
-        this.ctx = null;
-        this.enabled = true;
-      }
-      init() {
-        if (!this.ctx) {
-          const AudioContext = window.AudioContext || window.webkitAudioContext;
-          this.ctx = new AudioContext();
-        }
-      }
-      playSoftChirp() {
-        if (!this.enabled) return;
-        this.init();
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(520, this.ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(840, this.ctx.currentTime + 0.09);
-        gain.gain.setValueAtTime(0.03, this.ctx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.0001, this.ctx.currentTime + 0.09);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start();
-        osc.stop(this.ctx.currentTime + 0.09);
-      }
-      playHeartThud() {
-        if (!this.enabled) return;
-        this.init();
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(55, this.ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(32, this.ctx.currentTime + 0.14);
-        gain.gain.setValueAtTime(0.08, this.ctx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.0001, this.ctx.currentTime + 0.14);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start();
-        osc.stop(this.ctx.currentTime + 0.14);
-      }
-    }
-
-    const audio = new SpatialSoundEngine();
-    document.getElementById('btn-sound').addEventListener('click', () => {
-      audio.enabled = !audio.enabled;
-      document.getElementById('btn-sound').textContent = audio.enabled ? '🔊' : '🔇';
-    });
-  </script>
-
-  <!-- Kinetic Motion & Canvas AR Tracking Engine -->
+  <!-- Interactive Rendering & Vision Engine -->
   <script>
     // State
-    let currentMode = 'xray'; // xray | ultrasound | fluid | thermal
-    let isCameraActive = false;
-    let isSimulating = true;
-    let pose = null;
+    let activeView = 'sagittal'; // sagittal | frontal | ar
+    let isWebcamActive = false;
     let cameraInstance = null;
-    let rawLandmarks = null;
-    let smoothedLandmarks = null; // for 60fps buttery smooth interpolation (lerp)
-    let lastGestureTime = 0;
-    let heartTimer = 0;
+    let pose = null;
 
-    // DOM Elements
-    const videoElement = document.getElementById('webcam-video');
-    const canvasElement = document.getElementById('ar-canvas');
-    const canvasCtx = canvasElement.getContext('2d');
-    const usCanvas = document.getElementById('ultrasound-monitor');
-    const usCtx = usCanvas.getContext('2d');
+    const canvas = document.getElementById('interactive-canvas');
+    const ctx = canvas.getContext('2d');
+    const arCanvas = document.getElementById('ar-camera-canvas');
+    const arCtx = arCanvas.getContext('2d');
+    const video = document.getElementById('webcam-video');
+    const chartCanvas = document.getElementById('recovery-chart-canvas');
+    const chartCtx = chartCanvas.getContext('2d');
 
-    // Doppler flow particles for cardiac mode
-    const dopplerParticles = Array.from({ length: 28 }, () => ({
-      x: Math.random() * 60 - 30,
-      y: Math.random() * 50,
-      speed: 1.2 + Math.random() * 2,
-      size: 2 + Math.random() * 2.5,
-      alpha: Math.random() * 0.8 + 0.2
-    }));
-
-    function resizeCanvas() {
-      const parent = document.getElementById('stage-wrapper');
-      canvasElement.width = parent.clientWidth;
-      canvasElement.height = parent.clientHeight;
-      usCanvas.width = usCanvas.clientWidth;
-      usCanvas.height = usCanvas.clientHeight;
+    function resize() {
+      const container = document.getElementById('viewport-container');
+      canvas.width = container.clientWidth;
+      canvas.height = container.clientHeight;
+      arCanvas.width = container.clientWidth;
+      arCanvas.height = container.clientHeight;
+      chartCanvas.width = chartCanvas.clientWidth;
+      chartCanvas.height = chartCanvas.clientHeight;
     }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
+    window.addEventListener('resize', resize);
+    resize();
 
-    function setScanMode(mode) {
-      currentMode = mode;
-      audio.playSoftChirp();
-      document.querySelectorAll('.mode-pill').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.mode === mode);
-      });
+    // Switch Views (Sagittal Spine / Frontal Skeleton / Live AR Camera)
+    function switchView(view) {
+      activeView = view;
+      document.querySelectorAll('.view-card-thumb').forEach(t => t.classList.remove('active'));
       
-      const badge = document.getElementById('hud-status-text');
-      if (mode === 'xray') badge.textContent = "SKELETAL VOLUMETRIC MODEL // SPINAL TRACKING";
-      if (mode === 'ultrasound') badge.textContent = "CARDIAC & THORACIC DOPPLER SONOGRAPHY";
-      if (mode === 'fluid') badge.textContent = "CEPHALIC FLUID REDISTRIBUTION & SANS OCULAR";
-      if (mode === 'thermal') badge.textContent = "METABOLIC CORE THERMOREGULATION";
-    }
+      const pinSans = document.getElementById('pin-sans');
+      const pinCervical = document.getElementById('pin-cervical');
+      const pinLumbar = document.getElementById('pin-lumbar');
 
-    async function toggleCamera() {
-      audio.init();
-      if (isCameraActive) {
-        if (cameraInstance) cameraInstance.stop();
-        isCameraActive = false;
-        document.getElementById('camera-btn-text').textContent = 'START AR BIO-MIRROR';
-        document.getElementById('btn-camera').classList.remove('active');
-        isSimulating = true;
-        document.getElementById('btn-simulation').classList.add('active');
-      } else {
-        try {
-          isSimulating = false;
-          document.getElementById('btn-simulation').classList.remove('active');
-          initMediaPipe();
-          isCameraActive = true;
-          document.getElementById('camera-btn-text').textContent = 'STOP WEBCAM AR';
-          document.getElementById('btn-camera').classList.add('active');
-        } catch (e) {
-          alert("Camera unavailable. Running Autonomous Simulation!");
-          isSimulating = true;
-        }
+      if (view === 'sagittal') {
+        document.getElementById('btn-view-sagittal').classList.add('active');
+        canvas.style.display = 'block';
+        arCanvas.style.display = 'none';
+        stopCamera();
+        pinSans.style.display = 'flex';
+        pinCervical.style.display = 'flex';
+        pinLumbar.style.display = 'flex';
+        document.getElementById('active-exam-title').textContent = "X-ray of cervical & lumbar spinal decompression";
+        document.getElementById('active-exam-desc').textContent = "Microgravity axial unload causing L1-L5 intervertebral disc distension & cephalic venous fluid migration.";
+      } else if (view === 'frontal') {
+        document.getElementById('btn-view-frontal').classList.add('active');
+        canvas.style.display = 'block';
+        arCanvas.style.display = 'none';
+        stopCamera();
+        pinSans.style.display = 'none';
+        pinCervical.style.display = 'flex';
+        pinLumbar.style.display = 'flex';
+        document.getElementById('active-exam-title').textContent = "Frontal musculoskeletal & thoracic exam";
+        document.getElementById('active-exam-desc').textContent = "Coronal full-body assessment: bone mineral density decay rate & cardiac Doppler chamber elastance.";
+      } else if (view === 'ar') {
+        document.getElementById('btn-view-ar').classList.add('active');
+        canvas.style.display = 'none';
+        arCanvas.style.display = 'block';
+        startCamera();
+        pinSans.style.display = 'none';
+        pinCervical.style.display = 'none';
+        pinLumbar.style.display = 'none';
+        document.getElementById('active-exam-title').textContent = "Live AR Bio-Mirror (Computer Vision Tracker)";
+        document.getElementById('active-exam-desc').textContent = "Real-time webcam pose detection overlaying zero-g skeletal motion and thoracic sonogram.";
       }
     }
 
-    function toggleSimulation() {
-      audio.init();
-      isSimulating = !isSimulating;
-      document.getElementById('sim-btn-text').textContent = isSimulating ? 'SIMULATION RUNNING' : 'SIMULATION PAUSED';
-      document.getElementById('btn-simulation').classList.toggle('active', isSimulating);
-      if (isSimulating) {
-        isCameraActive = false;
-        document.getElementById('btn-camera').classList.remove('active');
-        document.getElementById('camera-btn-text').textContent = 'START AR BIO-MIRROR';
+    // Select Exam from History
+    function selectExam(type) {
+      document.querySelectorAll('.exam-thumb-box').forEach(b => b.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+
+      const descBox = document.getElementById('exam-countermeasure-desc');
+      const conclusion = document.getElementById('ai-conclusion-text');
+
+      if (type === 'cervical') {
+        switchView('sagittal');
+        descBox.innerHTML = "<strong>PRESCRIPTION // ARED RESISTIVE ROUTINE</strong>45 min high-load deadlifts (80% 1RM) + 30 min in Lower Body Negative Pressure (LBNP) suit at -35 mmHg.";
+        conclusion.textContent = "Spaceflight-Associated Neuro-ocular Syndrome (SANS) precursor & moderate L1-L5 spinal disc distension identified. Onboard countermeasure recommended.";
+      } else if (type === 'sans') {
+        descBox.innerHTML = "<strong>PRESCRIPTION // LBNP SUIT CYCLE</strong>35 min Chibis-M / LBNP session at -35 mmHg to displace interstitial fluids towards the lower extremities.";
+        conclusion.textContent = "Cephalic venous congestion detected with optic sheath dilatation (5.8mm). Prescribing immediate LBNP decompression.";
+      } else if (type === 'cardiac') {
+        descBox.innerHTML = "<strong>PRESCRIPTION // CARDIO PROTOCOL</strong>30 min T2 cycle ergometer session to maintain left ventricular stroke volume and prevent orthostatic deconditioning.";
+        conclusion.textContent = "Thoracic Doppler shows 64% ejection fraction (nominal). No pulmonary vascular congestion detected.";
+      } else if (type === 'femur') {
+        descBox.innerHTML = "<strong>PRESCRIPTION // BONE LOSS COUNTERMEASURE</strong>High-load axial squats on ARED + 2000 IU Vitamin D3 daily with monitored calcium intake.";
+        conclusion.textContent = "Proximal femur mineral loss running at -1.2%/month. High-priority ARED strength training scheduled.";
       }
     }
 
-    function initMediaPipe() {
+    // Draw the Halo-Lab / Simula AI Style Sagittal Head & Spine Anatomy
+    function drawSagittalAnatomy(time) {
+      const w = canvas.width;
+      const h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+
+      const cx = w * 0.5;
+      const cy = h * 0.48;
+
+      // Soft Ambient Radial Gradient behind Skull
+      const glow = ctx.createRadialGradient(cx, cy - 30, 20, cx, cy, 260);
+      glow.addColorStop(0, 'rgba(139, 92, 246, 0.25)');
+      glow.addColorStop(0.5, 'rgba(56, 189, 248, 0.08)');
+      glow.addColorStop(1, 'transparent');
+      ctx.fillStyle = glow;
+      ctx.fillRect(0, 0, w, h);
+
+      ctx.save();
+      ctx.translate(cx, cy);
+
+      // Skull Profile (Smooth translucent bezier curve)
+      ctx.beginPath();
+      ctx.moveTo(-100, -110);
+      ctx.bezierCurveTo(-110, -190, 50, -210, 80, -120); // Cranial vault
+      ctx.bezierCurveTo(95, -70, 85, -20, 60, -10);     // Forehead & nasal bone
+      ctx.bezierCurveTo(70, 10, 65, 30, 40, 45);         // Maxilla & teeth
+      ctx.bezierCurveTo(20, 75, -20, 75, -35, 45);       // Mandible jawline
+      ctx.bezierCurveTo(-60, 45, -80, 20, -85, -20);     // Base of skull / Occipital
+      ctx.closePath();
+
+      ctx.fillStyle = 'rgba(56, 189, 248, 0.04)';
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.35)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Brain / Neural Network Volumetric Glow
+      const brainGlow = ctx.createRadialGradient(0, -110, 10, 0, -110, 85);
+      brainGlow.addColorStop(0, 'rgba(139, 92, 246, 0.45)');
+      brainGlow.addColorStop(0.6, 'rgba(129, 140, 248, 0.15)');
+      brainGlow.addColorStop(1, 'transparent');
+      ctx.fillStyle = brainGlow;
+      ctx.beginPath();
+      ctx.ellipse(0, -110, 75, 55, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Cervical & Lumbar Vertebral Column (Glowing C1 - C7 vertebrae blocks)
+      const vertebraeCount = 12;
+      for (let i = 0; i < vertebraeCount; i++) {
+        const vy = 50 + i * 22;
+        const vx = -40 + Math.sin(i * 0.35) * 14; // natural lordosis curve
+        const pulse = 1 + Math.sin(time * 0.003 + i) * 0.08;
+
+        // Vertebra Block
+        ctx.fillStyle = (i >= 5 && i <= 8) ? 'rgba(251, 191, 36, 0.8)' : 'rgba(139, 92, 246, 0.75)';
+        ctx.beginPath();
+        ctx.roundRect(vx - 14, vy, 28 * pulse, 14, 4);
+        ctx.fill();
+
+        // Intervertebral Disc Spacing (Decompression indicator)
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.5)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(vx - 12, vy + 17);
+        ctx.lineTo(vx + 12, vy + 17);
+        ctx.stroke();
+      }
+
+      // Dynamic Flow Lines (Fluid Shift vectors moving towards cranium)
+      ctx.strokeStyle = 'rgba(251, 191, 36, 0.5)';
+      ctx.lineWidth = 1.5;
+      for (let f = -1; f <= 1; f += 2) {
+        const streamX = -70 + f * 15;
+        const flowY = ((time * 0.05) % 120);
+        ctx.beginPath();
+        ctx.moveTo(streamX, 220 - flowY);
+        ctx.lineTo(streamX, 160 - flowY);
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    // Draw Frontal Full Body Skeleton
+    function drawFrontalAnatomy(time) {
+      const w = canvas.width;
+      const h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+
+      const cx = w * 0.5;
+      const cy = h * 0.5;
+
+      ctx.save();
+      ctx.translate(cx, cy);
+
+      // Spine & Rib Cage
+      ctx.strokeStyle = 'rgba(139, 92, 246, 0.7)';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(0, -120);
+      ctx.lineTo(0, 40);
+      ctx.stroke();
+
+      // Head
+      ctx.beginPath();
+      ctx.arc(0, -150, 30, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Ribs
+      for (let r = -90; r <= -20; r += 16) {
+        const rw = 45 * (1 - Math.abs((r + 55) / 55) * 0.4);
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.ellipse(0, r, rw, 10, 0, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      // Hips & Legs
+      ctx.strokeStyle = 'rgba(139, 92, 246, 0.7)';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(-40, 40); ctx.lineTo(40, 40);
+      // Femurs (High-stress bone loss in amber)
+      ctx.strokeStyle = 'rgba(251, 191, 36, 0.85)';
+      ctx.moveTo(-40, 40); ctx.lineTo(-45, 140);
+      ctx.moveTo(40, 40); ctx.lineTo(45, 140);
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    // Draw Smooth Recovery Analytics Chart (Bezier Curve)
+    function drawRecoveryChart() {
+      const w = chartCanvas.width;
+      const h = chartCanvas.height;
+      chartCtx.clearRect(0, 0, w, h);
+
+      // Gradient Fill under curve
+      const areaGrad = chartCtx.createLinearGradient(0, 0, 0, h);
+      areaGrad.addColorStop(0, 'rgba(139, 92, 246, 0.35)');
+      areaGrad.addColorStop(1, 'rgba(139, 92, 246, 0.0)');
+
+      const points = [
+        { x: w * 0.05, y: h * 0.75 },
+        { x: w * 0.28, y: h * 0.65 },
+        { x: w * 0.52, y: h * 0.35 },
+        { x: w * 0.75, y: h * 0.55 },
+        { x: w * 0.95, y: h * 0.40 }
+      ];
+
+      // Draw Smooth Area
+      chartCtx.beginPath();
+      chartCtx.moveTo(points[0].x, h);
+      chartCtx.lineTo(points[0].x, points[0].y);
+
+      for (let i = 0; i < points.length - 1; i++) {
+        const xc = (points[i].x + points[i + 1].x) / 2;
+        const yc = (points[i].y + points[i + 1].y) / 2;
+        chartCtx.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
+      }
+      chartCtx.lineTo(points[points.length - 1].x, points[points.length - 1].y);
+      chartCtx.lineTo(points[points.length - 1].x, h);
+      chartCtx.closePath();
+      chartCtx.fillStyle = areaGrad;
+      chartCtx.fill();
+
+      // Stroke Line
+      chartCtx.beginPath();
+      chartCtx.moveTo(points[0].x, points[0].y);
+      for (let i = 0; i < points.length - 1; i++) {
+        const xc = (points[i].x + points[i + 1].x) / 2;
+        const yc = (points[i].y + points[i + 1].y) / 2;
+        chartCtx.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
+      }
+      chartCtx.lineTo(points[points.length - 1].x, points[points.length - 1].y);
+      chartCtx.strokeStyle = '#8b5cf6';
+      chartCtx.lineWidth = 2.5;
+      chartCtx.stroke();
+
+      // Highlight target node at point 3
+      const targetPt = points[2];
+      chartCtx.fillStyle = '#38bdf8';
+      chartCtx.beginPath();
+      chartCtx.arc(targetPt.x, targetPt.y, 5, 0, Math.PI * 2);
+      chartCtx.fill();
+    }
+
+    // MediaPipe Webcam AR Integration
+    function startCamera() {
+      if (isWebcamActive) return;
+      isWebcamActive = true;
+
       pose = new Pose({
         locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
       });
@@ -1187,32 +1195,47 @@
       pose.setOptions({
         modelComplexity: 1,
         smoothLandmarks: true,
-        enableSegmentation: false,
         minDetectionConfidence: 0.5,
         minTrackingConfidence: 0.5
       });
 
       pose.onResults(results => {
-        if (!isCameraActive) return;
-        rawLandmarks = results.poseLandmarks;
+        if (!isWebcamActive) return;
+        const w = arCanvas.width;
+        const h = arCanvas.height;
+        arCtx.clearRect(0, 0, w, h);
 
-        // Touchless Gesture detection
-        if (rawLandmarks) {
-          const rightWrist = rawLandmarks[16];
-          const nose = rawLandmarks[0];
-          if (rightWrist && nose && rightWrist.y < nose.y - 0.08) {
-            const now = Date.now();
-            if (now - lastGestureTime > 1600) {
-              cycleScanMode();
-              lastGestureTime = now;
-            }
+        // Draw Mirrored Video
+        arCtx.save();
+        arCtx.scale(-1, 1);
+        arCtx.translate(-w, 0);
+        arCtx.drawImage(video, 0, 0, w, h);
+        arCtx.fillStyle = 'rgba(12, 15, 24, 0.45)';
+        arCtx.fillRect(0, 0, w, h);
+
+        // Draw Skeleton Lines if detected
+        if (results.poseLandmarks) {
+          const lm = results.poseLandmarks;
+          function drawBone(i1, i2) {
+            if (!lm[i1] || !lm[i2]) return;
+            arCtx.beginPath();
+            arCtx.moveTo(lm[i1].x * w, lm[i1].y * h);
+            arCtx.lineTo(lm[i2].x * w, lm[i2].y * h);
+            arCtx.strokeStyle = 'rgba(139, 92, 246, 0.85)';
+            arCtx.lineWidth = 3.5;
+            arCtx.stroke();
           }
+          drawBone(11, 12); drawBone(11, 13); drawBone(13, 15);
+          drawBone(12, 14); drawBone(14, 16);
+          drawBone(11, 23); drawBone(12, 24); drawBone(23, 24);
+          drawBone(23, 25); drawBone(24, 26);
         }
+        arCtx.restore();
       });
 
-      cameraInstance = new Camera(videoElement, {
+      cameraInstance = new Camera(video, {
         onFrame: async () => {
-          if (isCameraActive) await pose.send({ image: videoElement });
+          if (isWebcamActive) await pose.send({ image: video });
         },
         width: 1280,
         height: 720
@@ -1221,471 +1244,39 @@
       cameraInstance.start();
     }
 
-    function cycleScanMode() {
-      const modes = ['xray', 'ultrasound', 'fluid', 'thermal'];
-      const nextIdx = (modes.indexOf(currentMode) + 1) % modes.length;
-      setScanMode(modes[nextIdx]);
+    function stopCamera() {
+      if (cameraInstance) cameraInstance.stop();
+      isWebcamActive = false;
     }
 
-    // Smooth Synthetic Skeleton Generator (for zero-g floating motion)
-    function getSimulationLandmarks(t) {
-      const cx = 0.5;
-      const cy = 0.51 + Math.sin(t * 0.0016) * 0.022; // subtle zero-g floating drift
-      const lm = [];
-
-      lm[0] = { x: cx, y: cy - 0.28 }; // Head
-      lm[11] = { x: cx - 0.12, y: cy - 0.15 }; // L Shoulder
-      lm[12] = { x: cx + 0.12, y: cy - 0.15 }; // R Shoulder
-      lm[13] = { x: cx - 0.17 + Math.sin(t * 0.002) * 0.015, y: cy - 0.02 };
-      lm[14] = { x: cx + 0.17 - Math.sin(t * 0.002) * 0.015, y: cy - 0.02 };
-      lm[15] = { x: cx - 0.21, y: cy + 0.11 };
-      lm[16] = { x: cx + 0.21, y: cy + 0.11 };
-      lm[23] = { x: cx - 0.07, y: cy + 0.12 }; // L Hip
-      lm[24] = { x: cx + 0.07, y: cy + 0.12 }; // R Hip
-      lm[25] = { x: cx - 0.09, y: cy + 0.28 }; // L Knee
-      lm[26] = { x: cx + 0.09, y: cy + 0.28 }; // R Knee
-      lm[27] = { x: cx - 0.10, y: cy + 0.45 }; // L Ankle
-      lm[28] = { x: cx + 0.10, y: cy + 0.45 }; // R Ankle
-
-      return lm;
-    }
-
-    // Linear Interpolation for Smooth 60fps Motion Easing
-    function lerp(start, end, factor) {
-      return start + (end - start) * factor;
-    }
-
-    function updateSmoothLandmarks(target) {
-      if (!target) return null;
-      if (!smoothedLandmarks || smoothedLandmarks.length !== target.length) {
-        smoothedLandmarks = target.map(p => ({ x: p.x, y: p.y }));
-        return smoothedLandmarks;
-      }
-      for (let i = 0; i < target.length; i++) {
-        smoothedLandmarks[i].x = lerp(smoothedLandmarks[i].x, target[i].x, 0.25);
-        smoothedLandmarks[i].y = lerp(smoothedLandmarks[i].y, target[i].y, 0.25);
-      }
-      return smoothedLandmarks;
-    }
-
-    // Main 60 FPS Render Engine
-    function renderFrame(timestamp) {
-      const w = canvasElement.width;
-      const h = canvasElement.height;
-      canvasCtx.clearRect(0, 0, w, h);
-
-      // 1. Draw Feed or Dark Void Studio Background
-      if (isCameraActive && videoElement.readyState >= 2) {
-        canvasCtx.save();
-        canvasCtx.drawImage(videoElement, 0, 0, w, h);
-        // Frosted dark overlay for high contrast readability
-        canvasCtx.fillStyle = 'rgba(6, 10, 20, 0.55)';
-        canvasCtx.fillRect(0, 0, w, h);
-        canvasCtx.restore();
-      } else {
-        // Subtle ambient studio backdrop
-        const grad = canvasCtx.createRadialGradient(w/2, h/2, 40, w/2, h/2, w/1.2);
-        grad.addColorStop(0, '#0a1020');
-        grad.addColorStop(1, '#04070e');
-        canvasCtx.fillStyle = grad;
-        canvasCtx.fillRect(0, 0, w, h);
-
-        // Minimalist fine geometric calibration markers
-        drawStudioMarkers(w, h);
-      }
-
-      // 2. Compute Target & Smoothed Landmarks
-      const targetLM = (isCameraActive && rawLandmarks) ? rawLandmarks : (isSimulating ? getSimulationLandmarks(timestamp) : null);
-      const lm = updateSmoothLandmarks(targetLM);
-
-      if (lm) {
-        if (currentMode === 'xray') {
-          drawSkeletalVolumetric(lm, w, h, timestamp);
-        } else if (currentMode === 'ultrasound') {
-          drawThoracicDoppler(lm, w, h, timestamp);
-        } else if (currentMode === 'fluid') {
-          drawCephalicFluidShift(lm, w, h, timestamp);
-        } else if (currentMode === 'thermal') {
-          drawMetabolicCore(lm, w, h, timestamp);
-        }
-      }
-
-      // 3. Heartbeat Audio Trigger & Ejection pulse
-      heartTimer += 16.6;
-      if (heartTimer > 830) {
-        audio.playHeartThud();
-        heartTimer = 0;
-      }
-
-      // 4. Update B-Scan Sonogram Waveform
-      drawUltrasoundMonitor(timestamp);
-
-      requestAnimationFrame(renderFrame);
-    }
-
-    function drawStudioMarkers(w, h) {
-      canvasCtx.save();
-      canvasCtx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
-      canvasCtx.lineWidth = 1;
-      const step = 80;
-      for (let x = step; x < w; x += step) {
-        canvasCtx.beginPath(); canvasCtx.moveTo(x, 0); canvasCtx.lineTo(x, h); canvasCtx.stroke();
-      }
-      for (let y = step; y < h; y += step) {
-        canvasCtx.beginPath(); canvasCtx.moveTo(0, y); canvasCtx.lineTo(w, y); canvasCtx.stroke();
-      }
-      canvasCtx.restore();
-    }
-
-    // MODE 1: SKELETAL VOLUMETRIC MODEL (Modern Medical Volumetric Wireframe)
-    function drawSkeletalVolumetric(lm, w, h, time) {
-      canvasCtx.save();
-      function p(idx) { return { x: lm[idx].x * w, y: lm[idx].y * h }; }
-
-      function drawFluidBone(i1, i2, strokeStyle = 'rgba(255, 255, 255, 0.65)', width = 3) {
-        if (!lm[i1] || !lm[i2]) return;
-        const pt1 = p(i1);
-        const pt2 = p(i2);
-        canvasCtx.beginPath();
-        canvasCtx.moveTo(pt1.x, pt1.y);
-        canvasCtx.lineTo(pt2.x, pt2.y);
-        canvasCtx.strokeStyle = strokeStyle;
-        canvasCtx.lineWidth = width;
-        canvasCtx.lineCap = 'round';
-        canvasCtx.stroke();
-
-        // Joint Node Spheres
-        canvasCtx.fillStyle = 'rgba(56, 189, 248, 0.9)';
-        canvasCtx.beginPath();
-        canvasCtx.arc(pt1.x, pt1.y, 4, 0, Math.PI * 2);
-        canvasCtx.arc(pt2.x, pt2.y, 4, 0, Math.PI * 2);
-        canvasCtx.fill();
-      }
-
-      // Arms
-      drawFluidBone(11, 13); drawFluidBone(13, 15);
-      drawFluidBone(12, 14); drawFluidBone(14, 16);
-      drawFluidBone(11, 12);
-
-      // Spine Column (C1 through Lumbar with soft amber elongation marker)
-      const midShoulder = { x: (p(11).x + p(12).x) / 2, y: (p(11).y + p(12).y) / 2 };
-      const midHip = { x: (p(23).x + p(24).x) / 2, y: (p(23).y + p(24).y) / 2 };
-
-      // Spine Gradient
-      const spineGrad = canvasCtx.createLinearGradient(midShoulder.x, midShoulder.y, midHip.x, midHip.y);
-      spineGrad.addColorStop(0, 'rgba(56, 189, 248, 0.8)');
-      spineGrad.addColorStop(0.7, 'rgba(251, 191, 36, 0.85)'); // Warning zone
-      spineGrad.addColorStop(1, 'rgba(251, 191, 36, 0.95)');
-
-      canvasCtx.beginPath();
-      canvasCtx.moveTo(midShoulder.x, midShoulder.y);
-      canvasCtx.lineTo(midHip.x, midHip.y);
-      canvasCtx.strokeStyle = spineGrad;
-      canvasCtx.lineWidth = 5;
-      canvasCtx.stroke();
-
-      // Vertebrae Disc Nodes with soft kinetic breathing pulse
-      for (let f = 0.15; f <= 0.85; f += 0.14) {
-        const vx = midShoulder.x + (midHip.x - midShoulder.x) * f;
-        const vy = midShoulder.y + (midHip.y - midShoulder.y) * f;
-        const discScale = 5 + Math.sin(time * 0.003 + f * 4) * 1.2;
-        canvasCtx.fillStyle = '#fbbf24';
-        canvasCtx.beginPath();
-        canvasCtx.arc(vx, vy, discScale, 0, Math.PI * 2);
-        canvasCtx.fill();
-      }
-
-      // Thoracic Rib Cage Arcs
-      canvasCtx.strokeStyle = 'rgba(255, 255, 255, 0.16)';
-      canvasCtx.lineWidth = 1.5;
-      for (let r = 0.2; r <= 0.6; r += 0.12) {
-        const ry = midShoulder.y + (midHip.y - midShoulder.y) * r;
-        const rx = 40 * (1 - Math.abs(r - 0.4) * 1.5);
-        canvasCtx.beginPath();
-        canvasCtx.ellipse(midShoulder.x, ry, rx, 10, 0, 0, Math.PI * 2);
-        canvasCtx.stroke();
-      }
-
-      // Pelvis & Legs
-      drawFluidBone(23, 24);
-      // Femur (demineralization zone highlighted in soft coral)
-      drawFluidBone(23, 25, 'rgba(248, 113, 113, 0.85)', 4);
-      drawFluidBone(24, 26, 'rgba(248, 113, 113, 0.85)', 4);
-      drawFluidBone(25, 27);
-      drawFluidBone(26, 28);
-
-      // Cranium
-      const head = p(0);
-      canvasCtx.strokeStyle = 'rgba(56, 189, 248, 0.7)';
-      canvasCtx.lineWidth = 2;
-      canvasCtx.beginPath();
-      canvasCtx.arc(head.x, head.y - 12, 34, 0, Math.PI * 2);
-      canvasCtx.stroke();
-
-      // Sleek Floating Dynamic Tags (Spring lerped)
-      drawSleekTag(midShoulder.x + 45, midShoulder.y + 35, "SPINE ELONGATION: +3.1 cm", "L1-L5 Disc Decompression", "#fbbf24");
-      drawSleekTag(p(23).x - 180, p(23).y + 45, "FEMUR BONE DECAY", "-1.2% / Month (ARED High-Load)", "#f87171");
-
-      canvasCtx.restore();
-    }
-
-    // MODE 2: THORACIC & CARDIAC DOPPLER ULTRASOUND
-    function drawThoracicDoppler(lm, w, h, time) {
-      canvasCtx.save();
-      const p11 = { x: lm[11].x * w, y: lm[11].y * h };
-      const p12 = { x: lm[12].x * w, y: lm[12].y * h };
-      const p23 = { x: lm[23].x * w, y: lm[23].y * h };
-
-      const cx = (p11.x + p12.x) / 2;
-      const cy = (p11.y + p12.y) / 2;
-      const heartX = cx - 24;
-      const heartY = cy + (p23.y - cy) * 0.24;
-
-      // Ultrasonic Acoustic Cone Scan
-      canvasCtx.save();
-      canvasCtx.translate(heartX, heartY - 65);
-      const coneGrad = canvasCtx.createRadialGradient(0, 0, 5, 0, 65, 140);
-      coneGrad.addColorStop(0, 'rgba(56, 189, 248, 0.3)');
-      coneGrad.addColorStop(0.6, 'rgba(99, 102, 241, 0.08)');
-      coneGrad.addColorStop(1, 'transparent');
-      canvasCtx.fillStyle = coneGrad;
-      canvasCtx.beginPath();
-      canvasCtx.moveTo(0, 0);
-      canvasCtx.arc(0, 0, 140, Math.PI * 0.36, Math.PI * 0.64);
-      canvasCtx.closePath();
-      canvasCtx.fill();
-      canvasCtx.restore();
-
-      // Fluid Organic Heart Chamber Ejection Animation
-      // Realistic systolic quick contraction + diastolic slow filling
-      const cycle = (time * 0.005) % (Math.PI * 2);
-      const heartExpansion = 1.0 + (Math.sin(cycle) > 0.4 ? Math.sin(cycle) * 0.14 : -0.04);
-
-      canvasCtx.save();
-      canvasCtx.translate(heartX, heartY);
-      canvasCtx.scale(heartExpansion, heartExpansion);
-
-      // Heart Geometry Silhouette
-      canvasCtx.beginPath();
-      canvasCtx.moveTo(0, 0);
-      canvasCtx.bezierCurveTo(-24, -22, -42, 12, 0, 40);
-      canvasCtx.bezierCurveTo(42, 12, 24, -22, 0, 0);
-      canvasCtx.fillStyle = 'rgba(56, 189, 248, 0.15)';
-      canvasCtx.fill();
-      canvasCtx.strokeStyle = 'rgba(56, 189, 248, 0.85)';
-      canvasCtx.lineWidth = 2.5;
-      canvasCtx.stroke();
-
-      // Flowing Doppler Blood Particles
-      dopplerParticles.forEach((pt, i) => {
-        pt.y += pt.speed;
-        if (pt.y > 38) { pt.y = 0; pt.x = (Math.random() * 40 - 20) * 0.8; }
-        const isArterial = i % 2 === 0;
-        canvasCtx.fillStyle = isArterial ? `rgba(248, 113, 113, ${pt.alpha})` : `rgba(56, 189, 248, ${pt.alpha})`;
-        canvasCtx.beginPath();
-        canvasCtx.arc(pt.x, pt.y, pt.size, 0, Math.PI * 2);
-        canvasCtx.fill();
-      });
-
-      canvasCtx.restore();
-
-      drawSleekTag(heartX + 65, heartY - 20, "CARDIAC DOPPLER ACTIVE", "LV Ejection Fraction: 64% (Nominal)", "#34d399");
-      drawSleekTag(heartX - 190, heartY + 30, "THORACIC FLUID VOLUME", "No Interstitial Pulmonary Congestion", "#38bdf8");
-
-      canvasCtx.restore();
-    }
-
-    // MODE 3: CEPHALIC FLUID SHIFT & SANS OCULAR
-    function drawCephalicFluidShift(lm, w, h, time) {
-      canvasCtx.save();
-      const head = { x: lm[0].x * w, y: lm[0].y * h };
-
-      // Gentle Expanding Radar Rings for Cranial Fluid Pressure
-      for (let i = 0; i < 3; i++) {
-        const phase = ((time * 0.0012 + i * 0.33) % 1);
-        const radius = 35 + phase * 40;
-        const alpha = (1 - phase) * 0.55;
-        canvasCtx.strokeStyle = `rgba(251, 191, 36, ${alpha})`;
-        canvasCtx.lineWidth = 1.5;
-        canvasCtx.beginPath();
-        canvasCtx.arc(head.x, head.y - 12, radius, 0, Math.PI * 2);
-        canvasCtx.stroke();
-      }
-
-      // Ocular Reticles with Smooth Kinetic Rotation
-      const eyeDx = 15;
-      const eyeDy = 8;
-      const rotAngle = time * 0.002;
-
-      [head.x - eyeDx, head.x + eyeDx].forEach(ex => {
-        canvasCtx.save();
-        canvasCtx.translate(ex, head.y - eyeDy);
-        canvasCtx.rotate(rotAngle);
-
-        canvasCtx.strokeStyle = 'rgba(56, 189, 248, 0.8)';
-        canvasCtx.lineWidth = 1.5;
-        canvasCtx.beginPath();
-        canvasCtx.arc(0, 0, 11, 0, Math.PI * 1.5);
-        canvasCtx.stroke();
-
-        // Crosshairs
-        canvasCtx.beginPath();
-        canvasCtx.moveTo(-14, 0); canvasCtx.lineTo(14, 0);
-        canvasCtx.moveTo(0, -14); canvasCtx.lineTo(0, 14);
-        canvasCtx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
-        canvasCtx.stroke();
-
-        canvasCtx.restore();
-      });
-
-      // Hydrodynamic Upward Vector Streams (Fluid migrating headward)
-      const neckY = head.y + 40;
-      for (let k = -1; k <= 1; k += 2) {
-        const streamX = head.x + (k * 30);
-        const floatProgress = (time * 0.04) % 26;
-        canvasCtx.strokeStyle = 'rgba(251, 191, 36, 0.7)';
-        canvasCtx.lineWidth = 2;
-        canvasCtx.beginPath();
-        canvasCtx.moveTo(streamX, neckY + 26 - floatProgress);
-        canvasCtx.lineTo(streamX, neckY - floatProgress);
-        canvasCtx.stroke();
-      }
-
-      drawSleekTag(head.x + 75, head.y - 45, "SANS RISK: ELEVATED", "Optic Sheath: 5.7mm (Threshold 5.5)", "#fbbf24");
-      drawSleekTag(head.x - 215, head.y + 20, "INTERNAL JUGULAR DISTENSION", "Venous Volume +26% (Fluid Shift)", "#fbbf24");
-
-      canvasCtx.restore();
-    }
-
-    // MODE 4: METABOLIC CORE THERMAL
-    function drawMetabolicCore(lm, w, h, time) {
-      canvasCtx.save();
-      const p11 = { x: lm[11].x * w, y: lm[11].y * h };
-      const p12 = { x: lm[12].x * w, y: lm[12].y * h };
-      const p23 = { x: lm[23].x * w, y: lm[23].y * h };
-      const cx = (p11.x + p12.x) / 2;
-      const cy = (p11.y + p23.y) / 2;
-
-      // Soft Organic Thermal Gradient (No harsh neon banding)
-      const thermGrad = canvasCtx.createRadialGradient(cx, cy - 10, 10, cx, cy, 130);
-      thermGrad.addColorStop(0, 'rgba(248, 113, 113, 0.35)');  // 37.1 C Core
-      thermGrad.addColorStop(0.4, 'rgba(251, 191, 36, 0.22)');
-      thermGrad.addColorStop(0.8, 'rgba(56, 189, 248, 0.12)');
-      thermGrad.addColorStop(1, 'transparent');
-
-      canvasCtx.fillStyle = thermGrad;
-      canvasCtx.beginPath();
-      canvasCtx.arc(cx, cy, 130, 0, Math.PI * 2);
-      canvasCtx.fill();
-
-      drawSleekTag(cx + 65, cy - 35, "CORE BODY TEMP: 37.1 °C", "Circadian Rhythm Nominal", "#34d399");
-      drawSleekTag(cx - 200, cy + 40, "INFLAMMATION BIOMARKERS", "Systemic CRP Levels Low", "#38bdf8");
-
-      canvasCtx.restore();
-    }
-
-    // Modern Sleek Floating Tag
-    function drawSleekTag(x, y, title, subtitle, accentColor) {
-      canvasCtx.save();
-      const w = 190;
-      const h = 42;
-
-      // Frosted Pill Container
-      canvasCtx.fillStyle = 'rgba(11, 17, 32, 0.88)';
-      canvasCtx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-      canvasCtx.lineWidth = 1;
-
-      // Rounded rect
-      canvasCtx.beginPath();
-      canvasCtx.roundRect(x, y, w, h, 8);
-      canvasCtx.fill();
-      canvasCtx.stroke();
-
-      // Left Accent Strip
-      canvasCtx.fillStyle = accentColor;
-      canvasCtx.beginPath();
-      canvasCtx.roundRect(x, y, 3.5, h, [8, 0, 0, 8]);
-      canvasCtx.fill();
-
-      // Text Typography
-      canvasCtx.font = "600 11px 'Plus Jakarta Sans', sans-serif";
-      canvasCtx.fillStyle = '#ffffff';
-      canvasCtx.fillText(title, x + 12, y + 17);
-
-      canvasCtx.font = "400 10px 'Inter', sans-serif";
-      canvasCtx.fillStyle = '#94a3b8';
-      canvasCtx.fillText(subtitle, x + 12, y + 31);
-
-      canvasCtx.restore();
-    }
-
-    // Smooth B-Scan Ultrasound Sonogram Monitor
-    function drawUltrasoundMonitor(time) {
-      const w = usCanvas.width;
-      const h = usCanvas.height;
-      usCtx.fillStyle = '#080c16';
-      usCtx.fillRect(0, 0, w, h);
-
-      // Subtle Grid lines
-      usCtx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
-      usCtx.lineWidth = 1;
-      for (let y = 0; y < h; y += 24) {
-        usCtx.beginPath(); usCtx.moveTo(0, y); usCtx.lineTo(w, y); usCtx.stroke();
-      }
-
-      // Smooth Spline ECG / Doppler Wave
-      usCtx.strokeStyle = '#34d399';
-      usCtx.lineWidth = 2;
-      usCtx.lineJoin = 'round';
-      usCtx.beginPath();
-
-      const speed = time * 0.0028;
-      for (let x = 0; x < w; x += 2) {
-        const t = (x / w) * 6 + speed;
-        let val = Math.sin(t) * 8;
-        if ((t % (Math.PI * 2)) < 0.35) {
-          val += Math.sin(t * 16) * 26; // QRS wave
-        }
-        val += (Math.random() - 0.5) * 2;
-        const y = h/2 + val;
-        if (x === 0) usCtx.moveTo(x, y);
-        else usCtx.lineTo(x, y);
-      }
-      usCtx.stroke();
-    }
-
-    function triggerFullBodyScan() {
-      audio.playSoftChirp();
-      const statusBadge = document.getElementById('hud-status-text');
-      statusBadge.textContent = "CLINICAL TRIAGE SCAN IN PROGRESS... [CALIBRATING]";
-      statusBadge.style.color = "#fbbf24";
-
+    function runAutomatedAssessment() {
+      const btn = event.currentTarget;
+      btn.innerHTML = "<span>⏳</span> Scanning...";
       setTimeout(() => {
-        statusBadge.textContent = "TRIAGE COMPLETE // NASA PROTOCOL ACTIVE";
-        statusBadge.style.color = "#34d399";
-        audio.playSoftChirp();
-      }, 1400);
+        btn.innerHTML = "<span>⚡</span> Re-Assess Vitals";
+        alert("NASA Autonomous Clinical Assessment Complete!\nStatus: Nominal\nSpinal Distension: +3.1 cm\nRecommendation: ARED Exercise Set #2");
+      }, 1000);
     }
 
-    function updateVitals() {
-      const glucose = document.getElementById('input-glucose').value;
-      document.getElementById('rpt-glucose').textContent = `${glucose} mg/dL`;
-      audio.playSoftChirp();
+    function openModal() {
+      document.getElementById('export-modal').classList.add('open');
     }
 
-    function openReportModal() {
-      audio.playSoftChirp();
-      const crewSelect = document.getElementById('crew-select');
-      document.getElementById('rpt-name').textContent = crewSelect.options[crewSelect.selectedIndex].text;
-      const modal = document.getElementById('report-modal');
-      modal.classList.add('show');
+    function closeModal() {
+      document.getElementById('export-modal').classList.remove('open');
     }
 
-    function closeReportModal() {
-      document.getElementById('report-modal').classList.remove('show');
+    // Animation Loop
+    function render(time) {
+      if (activeView === 'sagittal') {
+        drawSagittalAnatomy(time);
+      } else if (activeView === 'frontal') {
+        drawFrontalAnatomy(time);
+      }
+      drawRecoveryChart();
+      requestAnimationFrame(render);
     }
-
-    requestAnimationFrame(renderFrame);
+    requestAnimationFrame(render);
   </script>
 </body>
 </html>
