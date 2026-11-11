@@ -3,36 +3,37 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>COSMO-SCAN | Clinical Biotelemetry Dashboard</title>
+  <title>COSMO-SCAN | Clinical Thermographic Bio-Intelligence</title>
   
-  <!-- Inter & JetBrains Mono Fonts (Vercel / Linear / Apple Standard) -->
+  <!-- Inter & JetBrains Mono (Vercel / Linear / Apple Health Standard) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      /* Modern SaaS Neutral Palette (Vercel / Linear / Stripe Dark Theme) */
+      /* Premium Dark SaaS Theme (Vercel / Stripe / Linear) */
       --bg-canvas: #09090b;       /* Zinc 950 */
-      --bg-surface: #121215;      /* Elevation 1 */
-      --bg-subtle: #18181b;       /* Zinc 900 / Elevation 2 */
+      --bg-surface: #121215;      /* Elevated surface */
+      --bg-subtle: #18181b;       /* Zinc 900 */
       --bg-muted: #27272a;        /* Zinc 800 */
       
-      --border-subtle: #27272a;   /* 1px clean hairline border */
+      --border-subtle: #27272a;   /* 1px clean border */
       --border-medium: #3f3f46;   /* Zinc 700 */
-      --border-focus: #52525b;
 
-      /* Muted Functional Status Accents (No Neon, No Glow) */
-      --accent-primary: #3b82f6;   /* Blue 500 */
-      --status-critical: #ef4444;  /* Red 500 */
-      --status-warning: #f59e0b;   /* Amber 500 */
-      --status-success: #10b981;   /* Emerald 500 */
-      --status-info: #64748b;      /* Slate 500 */
+      /* FLIR Medical Thermography Spectrum (No Neon) */
+      --flir-white: #ffffff;
+      --flir-red: #ef4444;        /* Hyperthermic Defect / Hazard */
+      --flir-orange: #f97316;     /* Elevated Metabolic */
+      --flir-yellow: #eab308;     /* Core Temperature */
+      --flir-green: #10b981;      /* Baseline Normal */
+      --flir-cyan: #06b6d4;       /* Peripheral Cool */
+      --flir-blue: #2563eb;       /* Minimum Extremities */
+      --flir-dark: #070d1e;       /* Deep Ambient Base */
 
       --text-primary: #f4f4f5;     /* Zinc 100 */
       --text-secondary: #a1a1aa;   /* Zinc 400 */
       --text-tertiary: #71717a;    /* Zinc 500 */
-      --text-inverse: #09090b;
 
       --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       --font-mono: 'JetBrains Mono', monospace;
@@ -42,7 +43,6 @@
       --radius-lg: 12px;
 
       --transition-fast: 150ms cubic-bezier(0.16, 1, 0.3, 1);
-      --transition-standard: 250ms cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     * {
@@ -86,8 +86,8 @@
     }
 
     .brand-mark {
-      width: 22px;
-      height: 22px;
+      width: 24px;
+      height: 24px;
       background: #ffffff;
       color: #000000;
       border-radius: var(--radius-sm);
@@ -99,23 +99,14 @@
       font-family: var(--font-mono);
     }
 
-    .crumb-sep {
-      color: var(--text-tertiary);
-    }
-
-    .crumb-muted {
-      color: var(--text-secondary);
-    }
-
-    .crumb-active {
-      color: var(--text-primary);
-      font-weight: 600;
-    }
+    .crumb-sep { color: var(--text-tertiary); }
+    .crumb-muted { color: var(--text-secondary); }
+    .crumb-active { color: var(--text-primary); font-weight: 600; }
 
     .header-actions {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
     }
 
     .status-pill {
@@ -135,7 +126,7 @@
       width: 6px;
       height: 6px;
       border-radius: 50%;
-      background: var(--status-success);
+      background: var(--flir-green);
     }
 
     .btn {
@@ -179,7 +170,7 @@
       position: relative;
     }
 
-    /* LEFT SECTION: 75% PRIMARY THERMAL BODY SCAN STAGE */
+    /* LEFT SECTION: 75% PRIMARY FLIR MEDICAL THERMAL BODY STAGE */
     .stage-section {
       display: flex;
       flex-direction: column;
@@ -200,7 +191,6 @@
       flex-shrink: 0;
     }
 
-    /* Segmented Control (Linear / Apple Health Style) */
     .segmented-control {
       display: flex;
       background: var(--bg-subtle);
@@ -223,10 +213,7 @@
       transition: all var(--transition-fast);
     }
 
-    .seg-item:hover {
-      color: var(--text-primary);
-    }
-
+    .seg-item:hover { color: var(--text-primary); }
     .seg-item.active {
       background: var(--bg-muted);
       color: var(--text-primary);
@@ -237,7 +224,7 @@
     .stage-options {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 12px;
     }
 
     .badge-checkbox {
@@ -252,45 +239,71 @@
       transition: background var(--transition-fast);
     }
 
-    .badge-checkbox:hover {
-      background: var(--bg-subtle);
-    }
+    .badge-checkbox:hover { background: var(--bg-subtle); }
+    .badge-checkbox input { accent-color: var(--flir-blue); cursor: pointer; }
 
-    .badge-checkbox input {
-      accent-color: var(--accent-primary);
-      cursor: pointer;
-    }
-
-    /* PRIMARY THERMAL STAGE CANVAS CONTAINER */
+    /* PRIMARY THERMAL STAGE VIEWPORT (75% OF SCREEN) */
     .stage-viewport {
       flex: 1;
       position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #0c0c0e;
+      background: #09090c;
       overflow: hidden;
     }
 
-    #webcam-video {
+    /* VERTICAL FLIR TEMPERATURE GRADIENT SCALE (MEDICAL CALIBRATION BAR) */
+    .thermal-scale-bar {
       position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transform: scaleX(-1);
-      display: none;
-      opacity: 0.85;
+      left: 24px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 20;
     }
 
-    #thermal-svg {
-      width: 82%;
-      height: 88%;
-      max-height: 680px;
+    .scale-gradient {
+      width: 12px;
+      height: 280px;
+      border-radius: 3px;
+      border: 1px solid var(--border-subtle);
+      background: linear-gradient(180deg, 
+        #ffffff 0%, 
+        #ef4444 20%, 
+        #f97316 40%, 
+        #eab308 60%, 
+        #10b981 75%, 
+        #06b6d4 90%, 
+        #1e3a8a 100%);
+    }
+
+    .scale-labels {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 280px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-tertiary);
+    }
+
+    .scale-labels span {
+      line-height: 1;
+    }
+
+    /* FULL-SIZE ANATOMICAL FLIR THERMAL BODY SVG */
+    #thermal-body-svg {
+      height: 90%;
+      max-height: 720px;
+      width: auto;
       z-index: 10;
+      filter: drop-shadow(0 12px 30px rgba(0, 0, 0, 0.7));
     }
 
-    /* CONTEXTUAL INTERACTIVE HOTSPOT PINS (Sleek, Minimalist, No Neon) */
+    /* CONTEXTUAL MINIMALIST HOTSPOT PINS */
     .hotspot-pin {
       position: absolute;
       background: var(--bg-surface);
@@ -304,7 +317,7 @@
       font-weight: 500;
       color: var(--text-primary);
       cursor: pointer;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
       transition: all var(--transition-fast);
       z-index: 25;
     }
@@ -315,23 +328,63 @@
     }
 
     .hotspot-pin.active {
-      border-color: var(--accent-primary);
+      border-color: #ffffff;
       background: var(--bg-muted);
     }
 
-    .pin-indicator {
+    .pin-dot {
       width: 6px;
       height: 6px;
       border-radius: 50%;
     }
 
-    .pin-indicator.advisory { background: var(--status-warning); }
-    .pin-indicator.critical { background: var(--status-critical); }
-    .pin-indicator.nominal { background: var(--status-success); }
+    .pin-dot.hazard { background: var(--flir-red); }
+    .pin-dot.normal { background: var(--flir-green); }
 
-    /* FOOTER TELEMETRY STRIP (High Data Density) */
+    /* OPTIONAL SMALL PICTURE-IN-PICTURE (PIP) WEBCAM PREVIEW */
+    .pip-webcam-card {
+      position: absolute;
+      bottom: 20px;
+      left: 24px;
+      width: 170px;
+      height: 110px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      z-index: 30;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+      display: none; /* hidden until enabled by user in toolbar */
+      flex-direction: column;
+    }
+
+    .pip-webcam-card.visible {
+      display: flex;
+    }
+
+    .pip-header {
+      height: 22px;
+      background: var(--bg-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 0 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--text-secondary);
+    }
+
+    #webcam-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scaleX(-1);
+    }
+
+    /* FOOTER TELEMETRY STRIP (FLIR SENSOR SPECS) */
     .stage-footer {
-      height: 48px;
+      height: 44px;
       background: var(--bg-surface);
       border-top: 1px solid var(--border-subtle);
       padding: 0 20px;
@@ -347,7 +400,7 @@
     .footer-metrics-group {
       display: flex;
       align-items: center;
-      gap: 24px;
+      gap: 20px;
     }
 
     .metric-cell {
@@ -359,14 +412,14 @@
     .metric-cell .label { color: var(--text-tertiary); }
     .metric-cell .val { color: var(--text-primary); font-weight: 500; }
 
-    /* RIGHT SECTION: 25% CONTEXTUAL COLLAPSIBLE DIAGNOSTIC PANELS */
+    /* RIGHT SECTION: 25% COLLAPSIBLE CONTEXTUAL DIAGNOSTIC CARDS */
     .context-panel {
       background: var(--bg-surface);
       display: flex;
       flex-direction: column;
       overflow-y: auto;
       gap: 1px;
-      background-color: var(--border-subtle); /* 1px visual dividers */
+      background-color: var(--border-subtle);
     }
 
     .panel-block {
@@ -389,7 +442,25 @@
       letter-spacing: 0.05em;
     }
 
-    /* COLLAPSIBLE DIAGNOSTIC CARDS (ACCORDION STYLE) */
+    .table-compact {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+      font-family: var(--font-mono);
+    }
+
+    .table-compact td {
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .table-compact td:last-child {
+      text-align: right;
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    /* COLLAPSIBLE DIAGNOSTIC CARDS (ACCORDION) */
     .diagnostic-card {
       background: var(--bg-subtle);
       border: 1px solid var(--border-subtle);
@@ -399,13 +470,8 @@
       transition: border-color var(--transition-fast);
     }
 
-    .diagnostic-card:hover {
-      border-color: var(--border-medium);
-    }
-
-    .diagnostic-card.expanded {
-      border-color: var(--border-medium);
-    }
+    .diagnostic-card:hover { border-color: var(--border-medium); }
+    .diagnostic-card.expanded { border-color: var(--border-medium); }
 
     .card-trigger {
       padding: 10px 12px;
@@ -433,9 +499,9 @@
       border-radius: 4px;
     }
 
-    .tag-badge.warning { background: rgba(245, 158, 11, 0.15); color: var(--status-warning); }
-    .tag-badge.critical { background: rgba(239, 68, 68, 0.15); color: var(--status-critical); }
-    .tag-badge.success { background: rgba(16, 185, 129, 0.15); color: var(--status-success); }
+    .tag-badge.hazard { background: rgba(239, 68, 68, 0.15); color: var(--flir-red); }
+    .tag-badge.treated { background: rgba(37, 99, 235, 0.15); color: #60a5fa; }
+    .tag-badge.nominal { background: rgba(16, 185, 129, 0.15); color: var(--flir-green); }
 
     .card-content {
       padding: 0 12px 12px;
@@ -448,19 +514,14 @@
       padding-top: 8px;
     }
 
-    .diagnostic-card.expanded .card-content {
-      display: block;
-    }
+    .diagnostic-card.expanded .card-content { display: block; }
 
-    /* 24-HOUR INTERACTIVE TIMELINE SCRUBBER */
-    .timeline-container {
-      margin-top: 6px;
-    }
-
+    /* TIMELINE */
     .timeline-bar {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 4px;
+      margin-top: 6px;
     }
 
     .timeline-slot {
@@ -473,13 +534,10 @@
       transition: all var(--transition-fast);
     }
 
-    .timeline-slot:hover {
-      border-color: var(--border-medium);
-    }
-
+    .timeline-slot:hover { border-color: var(--border-medium); }
     .timeline-slot.active {
       background: var(--bg-muted);
-      border-color: var(--border-focus);
+      border-color: #52525b;
     }
 
     .slot-hour {
@@ -497,7 +555,7 @@
       display: block;
     }
 
-    /* AI CLINICAL INSIGHTS CARD (Notion AI / Perplexity Style) */
+    /* AI CLINICAL INSIGHTS */
     .ai-insight-box {
       background: var(--bg-subtle);
       border: 1px solid var(--border-subtle);
@@ -506,9 +564,6 @@
     }
 
     .insight-header {
-      display: flex;
-      align-items: center;
-      gap: 6px;
       font-size: 12px;
       font-weight: 600;
       color: var(--text-primary);
@@ -521,52 +576,12 @@
       line-height: 1.55;
     }
 
-    .action-checklist {
-      margin-top: 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .checklist-row {
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
-      font-size: 11px;
-      color: var(--text-secondary);
-    }
-
-    .check-bullet {
-      color: var(--accent-primary);
-      font-weight: 700;
-      font-family: var(--font-mono);
-    }
-
-    /* SPARKLINE CHART (REAL SCIENTIFIC GRAPH) */
+    /* SPARKLINE */
     #sparkline-canvas {
       width: 100%;
-      height: 60px;
+      height: 55px;
       display: block;
       margin-top: 8px;
-    }
-
-    /* DATA TABLE */
-    .table-compact {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 11px;
-      font-family: var(--font-mono);
-    }
-
-    .table-compact td {
-      padding: 6px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-    }
-
-    .table-compact td:last-child {
-      text-align: right;
-      color: var(--text-primary);
-      font-weight: 500;
     }
   </style>
 </head>
@@ -586,7 +601,7 @@
     <div class="header-actions">
       <div class="status-pill">
         <div class="status-dot"></div>
-        <span>SYSTEM NOMINAL</span>
+        <span>THERMAL SENSOR CALIBRATED</span>
       </div>
 
       <div class="status-pill">
@@ -595,11 +610,11 @@
       </div>
 
       <button class="btn" onclick="exportClinicalData()">
-        <span>Export Telemetry</span>
+        <span>Export Report</span>
       </button>
 
-      <button class="btn primary" onclick="runClinicalRecalibration()">
-        <span>Recalibrate Bio-Scan</span>
+      <button class="btn primary" onclick="recalibrateSensors()">
+        <span>Recalibrate</span>
       </button>
     </div>
   </header>
@@ -607,199 +622,341 @@
   <!-- MAIN PRODUCTION WORKSPACE -->
   <div class="workspace">
     
-    <!-- LEFT SECTION (75% PRIMARY THERMAL BODY SCAN STAGE) -->
+    <!-- LEFT SECTION (75% PRIMARY FLIR MEDICAL THERMAL BODY STAGE) -->
     <div class="stage-section">
       
       <!-- Stage Segmented Controls Toolbar -->
       <div class="stage-toolbar">
         <div class="segmented-control">
-          <button class="seg-item active" id="tab-coronal" onclick="switchStageMode('coronal')">Coronal Thermography</button>
-          <button class="seg-item" id="tab-spine" onclick="switchStageMode('spine')">Spinal Alignment</button>
-          <button class="seg-item" id="tab-webcam" onclick="switchStageMode('webcam')">Webcam Bio-Mirror</button>
+          <button class="seg-item active" id="tab-coronal" onclick="switchBodyView('full')">Full Body Thermography</button>
+          <button class="seg-item" id="tab-spine" onclick="switchBodyView('spine')">Spinal & Axial Focus</button>
+          <button class="seg-item" id="tab-cranial" onclick="switchBodyView('cranial')">Cranial & SANS</button>
         </div>
 
         <div class="stage-options">
           <label class="badge-checkbox">
-            <input type="checkbox" id="check-skeleton" checked onchange="toggleSkeletonLayer()">
-            <span>Skeleton Framework</span>
+            <input type="checkbox" id="check-skeleton" checked onchange="toggleSkeletonOverlay()">
+            <span>Skeleton Landmarks</span>
           </label>
           <label class="badge-checkbox">
-            <input type="checkbox" id="check-heatmap" checked onchange="toggleHeatmapLayer()">
-            <span>Thermal Gradient</span>
+            <input type="checkbox" id="check-thermal" checked onchange="toggleThermalMap()">
+            <span>FLIR Heatmap</span>
+          </label>
+          <label class="badge-checkbox">
+            <input type="checkbox" id="check-pip" onchange="toggleWebcamPIP()">
+            <span>PIP Camera</span>
           </label>
         </div>
       </div>
 
-      <!-- Primary Stage Viewport -->
+      <!-- Primary Stage Viewport (Full-Size Anatomical Thermal Body) -->
       <div class="stage-viewport" id="viewport-stage">
         
-        <!-- Live Hardware Video Stream Element -->
-        <video id="webcam-video" autoplay playsinline muted></video>
-
-        <!-- HIGH-PRECISION ANATOMICAL VECTOR THERMOGRAPHY BODY -->
-        <svg id="thermal-svg" viewBox="0 0 500 700">
-          <defs>
-            <!-- Real Scientific Thermographic Gradients (Medical Calibration, No Neon) -->
-            <radialGradient id="therm-cranial" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" id="stop-cranial-0" stop-color="#ef4444" />
-              <stop offset="60%" id="stop-cranial-1" stop-color="#f59e0b" />
-              <stop offset="90%" stop-color="#10b981" />
-              <stop offset="100%" stop-color="#0284c7" />
-            </radialGradient>
-
-            <radialGradient id="therm-neck" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" id="stop-neck-0" stop-color="#ef4444" />
-              <stop offset="55%" id="stop-neck-1" stop-color="#f59e0b" />
-              <stop offset="100%" stop-color="#0284c7" />
-            </radialGradient>
-
-            <linearGradient id="therm-spine" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" id="stop-spine-0" stop-color="#ef4444" />
-              <stop offset="60%" id="stop-spine-1" stop-color="#ef4444" />
-              <stop offset="100%" stop-color="#0284c7" />
-            </linearGradient>
-
-            <radialGradient id="therm-thorax" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" id="stop-thorax-0" stop-color="#0284c7" />
-              <stop offset="65%" stop-color="#10b981" />
-              <stop offset="100%" stop-color="#092042" />
-            </radialGradient>
-
-            <radialGradient id="therm-femur" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" id="stop-femur-0" stop-color="#ef4444" />
-              <stop offset="60%" id="stop-femur-1" stop-color="#f59e0b" />
-              <stop offset="100%" stop-color="#0284c7" />
-            </radialGradient>
-
-            <radialGradient id="therm-plantar" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" id="stop-plantar-0" stop-color="#10b981" />
-              <stop offset="80%" stop-color="#0284c7" />
-              <stop offset="100%" stop-color="#08142a" />
-            </radialGradient>
-          </defs>
-
-          <!-- 1. Anatomical Silhouette Body (Precision Contours) -->
-          <path d="
-            M 250,55 
-            C 268,55 280,72 280,95 
-            C 280,118 268,135 258,142
-            L 282,150 L 360,165 L 470,180 L 475,202 L 365,198 L 295,192 
-            L 282,240 L 285,320 C 288,345 282,370 280,390
-            L 272,490 L 265,580 L 268,645 L 255,650 L 250,430 
-            L 245,650 L 232,645 L 235,580 L 228,490 L 220,390 
-            C 218,370 212,345 215,320 L 218,240 L 205,192 
-            L 135,198 L 25,202 L 30,180 L 140,165 L 218,150 
-            L 242,142 C 232,135 220,118 220,95 C 220,72 232,55 250,55 Z" 
-            fill="#0f1422" 
-            stroke="#27272a" 
-            stroke-width="1.2" 
-          />
-
-          <!-- 2. Medical Heatmap Layer -->
-          <g id="heatmap-svg-layer">
-            <!-- Cranial Region (SANS Edema) -->
-            <circle cx="250" cy="95" r="22" fill="url(#therm-cranial)" />
-
-            <!-- Cervical Vertebrae -->
-            <ellipse cx="250" cy="148" rx="14" ry="10" fill="url(#therm-neck)" />
-
-            <!-- Lumbar Spine (L1-L5 Disc Extension) -->
-            <path d="M 246,160 L 254,160 L 254,340 L 246,340 Z" fill="url(#therm-spine)" opacity="0.9" />
-
-            <!-- Thoracic Cavity & Heart -->
-            <circle cx="240" cy="210" r="28" fill="url(#therm-thorax)" opacity="0.8" />
-
-            <!-- Proximal Femurs (Bone Mineral Decay) -->
-            <ellipse cx="232" cy="440" rx="14" ry="42" fill="url(#therm-femur)" />
-            <ellipse cx="268" cy="440" rx="14" ry="42" fill="url(#therm-femur)" />
-
-            <!-- Plantar Ankle Baseline -->
-            <ellipse cx="236" cy="625" rx="12" ry="16" fill="url(#therm-plantar)" />
-            <ellipse cx="264" cy="625" rx="12" ry="16" fill="url(#therm-plantar)" />
-          </g>
-
-          <!-- 3. Skeleton Framework Overlay -->
-          <g id="skeleton-svg-layer">
-            <line x1="250" y1="130" x2="250" y2="360" stroke="#71717a" stroke-width="2.5" stroke-linecap="round" />
-            <path d="M 230,175 Q 250,165 270,175 M 225,195 Q 250,185 275,195 M 224,215 Q 250,205 276,215 M 226,235 Q 250,225 274,235" stroke="#52525b" stroke-width="1.5" fill="none" />
-            <line x1="225" y1="150" x2="275" y2="150" stroke="#71717a" stroke-width="2" />
-            <line x1="225" y1="150" x2="140" y2="175" stroke="#52525b" stroke-width="1.8" />
-            <line x1="140" y1="175" x2="40" y2="190" stroke="#52525b" stroke-width="1.8" />
-            <line x1="275" y1="150" x2="360" y2="175" stroke="#52525b" stroke-width="1.8" />
-            <line x1="360" y1="175" x2="460" y2="190" stroke="#52525b" stroke-width="1.8" />
-            <line x1="225" y1="365" x2="275" y2="365" stroke="#71717a" stroke-width="2.5" />
-            <line x1="235" y1="375" x2="230" y2="490" stroke="#71717a" stroke-width="2" />
-            <line x1="265" y1="375" x2="270" y2="490" stroke="#71717a" stroke-width="2" />
-            <line x1="230" y1="490" x2="235" y2="625" stroke="#52525b" stroke-width="1.8" />
-            <line x1="270" y1="490" x2="265" y2="625" stroke="#52525b" stroke-width="1.8" />
-          </g>
-        </svg>
-
-        <!-- CONTEXTUAL INTERACTIVE HOTSPOTS -->
-        <div class="hotspot-pin active" style="top: 14%; left: 49%;" onclick="focusDiagnosticZone('sans')">
-          <div class="pin-indicator critical"></div>
-          <span>Cranial SANS (5.8mm)</span>
+        <!-- Medical Thermal Calibration Scale Bar (FLIR Gradient Bar) -->
+        <div class="thermal-scale-bar">
+          <div class="scale-gradient"></div>
+          <div class="scale-labels">
+            <span>38.5°C</span>
+            <span>37.6°C</span>
+            <span>37.1°C</span>
+            <span>36.4°C</span>
+            <span>35.5°C</span>
+            <span>34.2°C</span>
+            <span>32.0°C</span>
+          </div>
         </div>
 
-        <div class="hotspot-pin" style="top: 24%; left: 51%;" onclick="focusDiagnosticZone('neck')">
-          <div class="pin-indicator critical"></div>
+        <!-- Optional Picture-in-Picture Webcam (Small Corner Preview Only) -->
+        <div class="pip-webcam-card" id="webcam-pip-card">
+          <div class="pip-header">
+            <span>OPTICAL SENSOR CAM-01</span>
+            <span style="color:var(--flir-green);">LIVE</span>
+          </div>
+          <video id="webcam-video" autoplay playsinline muted></video>
+        </div>
+
+        <!-- FULL-SIZE DETAILED ANATOMICAL THERMAL HUMAN MODEL (FLIR / PET SCAN INSPIRATION) -->
+        <svg id="thermal-body-svg" viewBox="0 0 540 820">
+          <defs>
+            <!-- High-Fidelity FLIR / PET Medical Shaders -->
+            
+            <!-- 1. Cranial / Brain SANS Heat Shader -->
+            <radialGradient id="flir-cranial-grad" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" id="stop-cranial-core" stop-color="#ffffff" />
+              <stop offset="35%" id="stop-cranial-hot" stop-color="#ef4444" />
+              <stop offset="65%" stop-color="#f97316" />
+              <stop offset="85%" stop-color="#10b981" />
+              <stop offset="100%" stop-color="#0284c7" />
+            </radialGradient>
+
+            <!-- 2. Cervical Spine Hyperthermia Shader (C1-C7) -->
+            <radialGradient id="flir-neck-grad" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" id="stop-neck-core" stop-color="#ef4444" />
+              <stop offset="60%" stop-color="#f97316" />
+              <stop offset="100%" stop-color="#10b981" />
+            </radialGradient>
+
+            <!-- 3. Thorax & Heart Core Visceral Heat Shader -->
+            <radialGradient id="flir-thorax-grad" cx="46%" cy="48%" r="48%">
+              <stop offset="0%" id="stop-thorax-core" stop-color="#f97316" />
+              <stop offset="45%" stop-color="#eab308" />
+              <stop offset="75%" stop-color="#10b981" />
+              <stop offset="100%" stop-color="#0284c7" />
+            </radialGradient>
+
+            <!-- 4. Lumbar L1-L5 Axial Decompression Heat Spine -->
+            <linearGradient id="flir-spine-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" id="stop-spine-top" stop-color="#ef4444" />
+              <stop offset="60%" id="stop-spine-mid" stop-color="#ef4444" />
+              <stop offset="90%" stop-color="#f97316" />
+              <stop offset="100%" stop-color="#10b981" />
+            </linearGradient>
+
+            <!-- 5. Abdominal / Visceral Heat Gradient -->
+            <radialGradient id="flir-abdomen-grad" cx="50%" cy="45%" r="50%">
+              <stop offset="0%" stop-color="#eab308" />
+              <stop offset="60%" stop-color="#10b981" />
+              <stop offset="100%" stop-color="#0284c7" />
+            </radialGradient>
+
+            <!-- 6. Pelvis & Femur Joint Demineralization Shader -->
+            <radialGradient id="flir-femur-grad" cx="50%" cy="40%" r="50%">
+              <stop offset="0%" id="stop-femur-core" stop-color="#ef4444" />
+              <stop offset="50%" stop-color="#f97316" />
+              <stop offset="85%" stop-color="#10b981" />
+              <stop offset="100%" stop-color="#0284c7" />
+            </radialGradient>
+
+            <!-- 7. Extremities / Calf / Plantar Cooling Gradients -->
+            <radialGradient id="flir-plantar-grad" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#10b981" />
+              <stop offset="65%" stop-color="#06b6d4" />
+              <stop offset="100%" stop-color="#1e3a8a" />
+            </radialGradient>
+
+            <!-- Anatomical Diffuse Blur Filters for Clinical FLIR Heat Look -->
+            <filter id="flir-blur-soft" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="6" />
+            </filter>
+            <filter id="flir-blur-deep" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="14" />
+            </filter>
+          </defs>
+
+          <!-- 1. FULL ANATOMICAL BODY SILHOUETTE (PROPORTIONAL ADULT HUMAN BODY) -->
+          <g id="body-silhouette-group">
+            <!-- Detailed Anatomical Outlines: Head, Trapezius, Shoulders, Biceps, Forearms, Hands, Torso, Hips, Thighs, Calves, Feet -->
+            <path d="
+              M 270,48 
+              C 288,48 300,64 300,88 
+              C 300,108 290,126 280,136 
+              C 288,142 308,150 326,158
+              L 368,172 
+              C 384,178 396,192 400,210
+              L 410,270 
+              C 414,288 412,320 408,350
+              L 414,400 
+              C 416,416 412,434 402,442
+              L 396,444 
+              L 390,380 
+              L 384,330 
+              C 380,300 376,280 370,250
+              L 348,220 
+              L 335,260 
+              C 334,295 332,340 330,380
+              C 328,420 330,450 326,480
+              L 320,560 
+              C 318,590 316,620 310,670
+              L 302,740 
+              L 306,782 
+              L 294,785 
+              L 282,780 
+              L 278,730 
+              L 274,650 
+              C 272,580 270,510 270,480
+              C 270,510 268,580 266,650
+              L 262,730 
+              L 258,780 
+              L 246,785 
+              L 234,782 
+              L 238,740 
+              L 230,670 
+              C 224,620 222,590 220,560
+              L 214,480 
+              C 210,450 212,420 210,380
+              C 208,340 206,295 205,260
+              L 192,220 
+              L 170,250 
+              C 164,280 160,300 156,330
+              L 150,380 
+              L 144,444 
+              L 138,442 
+              C 128,434 124,416 126,400
+              L 132,350 
+              C 128,320 126,288 130,270
+              L 140,210 
+              C 144,192 156,178 172,172
+              L 214,158 
+              C 232,150 252,142 260,136
+              C 250,126 240,108 240,88 
+              C 240,64 252,48 270,48 Z" 
+              fill="#080e1e" 
+              stroke="#1e293b" 
+              stroke-width="1.2" 
+            />
+          </g>
+
+          <!-- 2. MEDICAL THERMOGRAPHIC HEATMAP DISTRIBUTION (FLIR EMISSION SHADERS) -->
+          <g id="heatmap-layer">
+            <!-- Peripheral Cyan Baseline (Subcutaneous cooler tissue) -->
+            <path d="
+              M 270,54 C 284,54 294,68 294,88 C 294,105 284,120 270,128 C 256,120 246,105 246,88 C 246,68 256,54 270,54 Z
+              M 244,155 L 296,155 L 316,240 L 312,380 L 298,470 L 270,475 L 242,470 L 228,380 L 224,240 Z
+              M 240,485 L 268,485 L 264,660 L 246,660 Z
+              M 272,485 L 300,485 L 294,660 L 276,660 Z"
+              fill="#06b6d4" 
+              opacity="0.25" 
+              filter="url(#flir-blur-deep)"
+            />
+
+            <!-- Core Green Physiological Heat Layer (Metabolic Baseline) -->
+            <path d="
+              M 270,60 C 280,60 288,72 288,88 C 288,102 280,115 270,120 C 260,115 252,102 252,88 C 252,72 260,60 270,60 Z
+              M 248,160 L 292,160 L 306,230 L 302,360 L 270,420 L 238,360 L 234,230 Z
+              M 244,480 L 265,480 L 262,640 L 248,640 Z
+              M 275,480 L 296,480 L 292,640 L 278,640 Z"
+              fill="#10b981" 
+              opacity="0.45" 
+              filter="url(#flir-blur-soft)"
+            />
+
+            <!-- Thorax & Visceral Abdominal Heat Field -->
+            <ellipse cx="270" cy="235" rx="42" ry="55" fill="url(#flir-thorax-grad)" opacity="0.85" filter="url(#flir-blur-soft)" />
+            <ellipse cx="270" cy="335" rx="36" ry="45" fill="url(#flir-abdomen-grad)" opacity="0.75" filter="url(#flir-blur-soft)" />
+
+            <!-- CRANIAL / BRAIN SANS HYPERTHERMIC ANOMALY (Optic Nerve & Cephalic Fluid Shift) -->
+            <ellipse cx="270" cy="88" rx="24" ry="28" fill="url(#flir-cranial-grad)" opacity="0.95" filter="url(#flir-blur-soft)" />
+
+            <!-- CERVICAL SPINE STRAIN (C1-C7 Vertebrae Loading) -->
+            <ellipse cx="270" cy="148" rx="16" ry="12" fill="url(#flir-neck-grad)" opacity="0.9" filter="url(#flir-blur-soft)" />
+
+            <!-- LUMBAR L1-L5 AXIAL SPINAL HYPERTHERMIC COMPRESSION TRACK -->
+            <path d="M 265,165 L 275,165 L 274,385 L 266,385 Z" fill="url(#flir-spine-grad)" opacity="0.95" filter="url(#flir-blur-soft)" />
+
+            <!-- BILATERAL PROXIMAL FEMURS (Bone Mineral Density Decay Hotspots) -->
+            <ellipse cx="248" cy="465" rx="16" ry="52" fill="url(#flir-femur-grad)" opacity="0.85" filter="url(#flir-blur-soft)" />
+            <ellipse cx="292" cy="465" rx="16" ry="52" fill="url(#flir-femur-grad)" opacity="0.85" filter="url(#flir-blur-soft)" />
+
+            <!-- PLANTAR / ANKLE TERMINALS -->
+            <ellipse cx="246" cy="760" rx="12" ry="16" fill="url(#flir-plantar-grad)" opacity="0.7" />
+            <ellipse cx="294" cy="760" rx="12" ry="16" fill="url(#flir-plantar-grad)" opacity="0.7" />
+          </g>
+
+          <!-- 3. SKELETAL & SPINAL ANATOMICAL LANDMARKS OVERLAY (SUBTLE, NO NEON) -->
+          <g id="skeleton-landmarks-group" opacity="0.75">
+            <!-- Spinal Column Vertebral Stack (C1-C7, T1-T12, L1-L5) -->
+            <line x1="270" y1="130" x2="270" y2="400" stroke="#71717a" stroke-width="2.5" stroke-linecap="round" />
+            
+            <!-- Intervertebral Disc Nodes (Realistic Mechanical Stack) -->
+            <g stroke="#a1a1aa" stroke-width="1.2">
+              <line x1="264" y1="140" x2="276" y2="140" />
+              <line x1="263" y1="155" x2="277" y2="155" />
+              <line x1="262" y1="180" x2="278" y2="180" />
+              <line x1="261" y1="210" x2="279" y2="210" />
+              <line x1="260" y1="245" x2="280" y2="245" />
+              <line x1="260" y1="280" x2="280" y2="280" />
+              <line x1="261" y1="315" x2="279" y2="315" />
+              <line x1="262" y1="350" x2="278" y2="350" />
+              <line x1="263" y1="380" x2="277" y2="380" />
+            </g>
+
+            <!-- Anatomical Rib Cage Contours -->
+            <path d="
+              M 248,190 Q 270,180 292,190 
+              M 242,210 Q 270,198 298,210 
+              M 238,232 Q 270,220 302,232 
+              M 240,255 Q 270,242 300,255 
+              M 244,278 Q 270,265 296,278" 
+              stroke="#52525b" 
+              stroke-width="1.2" 
+              fill="none" 
+            />
+
+            <!-- Clavicles & Scapular Borders -->
+            <path d="M 270,146 L 235,160 L 195,178 M 270,146 L 305,160 L 345,178" stroke="#71717a" stroke-width="1.5" fill="none" />
+
+            <!-- Pelvic Rim & Femur Shaft Axes -->
+            <path d="M 238,405 C 250,420 290,420 302,405" stroke="#71717a" stroke-width="2" fill="none" />
+            <line x1="248" y1="418" x2="252" y2="570" stroke="#71717a" stroke-width="2" />
+            <line x1="292" y1="418" x2="288" y2="570" stroke="#71717a" stroke-width="2" />
+            <line x1="252" y1="585" x2="250" y2="735" stroke="#52525b" stroke-width="1.5" />
+            <line x1="288" y1="585" x2="290" y2="735" stroke="#52525b" stroke-width="1.5" />
+          </g>
+
+          <!-- 4. SUBTLE ANATOMICAL FOCUS CROSSHAIRS -->
+          <circle id="target-focus-ring" cx="270" cy="88" r="32" fill="none" stroke="#ffffff" stroke-width="1.2" stroke-dasharray="4,4" opacity="0.8" />
+        </svg>
+
+        <!-- INTERACTIVE CONTEXTUAL HOTSPOT PINS (REAL CLINICAL LABELS) -->
+        <div class="hotspot-pin active" style="top: 13%; left: 52%;" onclick="focusDiagnosticZone('cranial')">
+          <div class="pin-dot hazard"></div>
+          <span>Cranial / SANS (5.8mm)</span>
+        </div>
+
+        <div class="hotspot-pin" style="top: 21%; left: 54%;" onclick="focusDiagnosticZone('neck')">
+          <div class="pin-dot hazard"></div>
           <span>Cervical C1-C7 (+1.1cm)</span>
         </div>
 
-        <div class="hotspot-pin" style="top: 42%; left: 52%;" onclick="focusDiagnosticZone('spine')">
-          <div class="pin-indicator critical"></div>
-          <span>Lumbar L1-L5 (+3.1cm)</span>
+        <div class="hotspot-pin" style="top: 40%; left: 55%;" onclick="focusDiagnosticZone('lumbar')">
+          <div class="pin-dot hazard"></div>
+          <span>Lumbar Spine (+3.1cm)</span>
         </div>
 
-        <div class="hotspot-pin" style="top: 32%; left: 42%;" onclick="focusDiagnosticZone('thorax')">
-          <div class="pin-indicator nominal"></div>
-          <span>Thorax (74mL SV)</span>
+        <div class="hotspot-pin" style="top: 32%; left: 44%;" onclick="focusDiagnosticZone('thorax')">
+          <div class="pin-dot normal"></div>
+          <span>Thoracic SV (74mL)</span>
         </div>
 
-        <div class="hotspot-pin" style="top: 66%; left: 44%;" onclick="focusDiagnosticZone('femur')">
-          <div class="pin-indicator critical"></div>
-          <span>Femur BMD (-1.2%)</span>
-        </div>
-
-        <div class="hotspot-pin" style="top: 88%; left: 45%;" onclick="focusDiagnosticZone('ankle')">
-          <div class="pin-indicator nominal"></div>
-          <span>Plantar Baseline</span>
+        <div class="hotspot-pin" style="top: 60%; left: 47%;" onclick="focusDiagnosticZone('femur')">
+          <div class="pin-dot hazard"></div>
+          <span>Femoral BMD (-1.2%)</span>
         </div>
 
       </div>
 
-      <!-- Stage Bottom Telemetry Strip -->
+      <!-- Stage Bottom Telemetry Strip (FLIR Sensor Specs) -->
       <div class="stage-footer">
         <div class="footer-metrics-group">
           <div class="metric-cell">
-            <span class="label">COORDINATE:</span>
-            <span class="val">CORONAL Z-0.00</span>
+            <span class="label">SENSOR:</span>
+            <span class="val">FLIR LWIR 640×512 (NETD &lt;40mK)</span>
           </div>
           <div class="metric-cell">
-            <span class="label">RANGE:</span>
-            <span class="val">34.2°C – 38.6°C</span>
+            <span class="label">EMISSIVITY (ε):</span>
+            <span class="val">0.98 HUMAN DERMIS</span>
           </div>
           <div class="metric-cell">
-            <span class="label">HAZARD INDEX:</span>
-            <span class="val" style="color:var(--status-warning);" id="val-hazard">0.68 (ADVISORY)</span>
+            <span class="label">CORE INTEGRITY:</span>
+            <span class="val" style="color:var(--flir-yellow);" id="val-stability-score">87% STABILIZED</span>
           </div>
         </div>
 
         <div>
-          <span>ISO 13485 CERTIFIED CLINICAL DECISION SUPPORT</span>
+          <span>ISO 13485 CLINICAL MEDICAL IMAGING STANDARD</span>
         </div>
       </div>
 
     </div>
 
-    <!-- RIGHT SECTION (25% COLLAPSIBLE CONTEXTUAL DIAGNOSTIC CARDS) -->
+    <!-- RIGHT SECTION (25% CONTEXTUAL COLLAPSIBLE CARDS) -->
     <div class="context-panel">
       
-      <!-- Panel Block 1: Real Telemetry Metrics Table -->
+      <!-- Panel Block 1: Telemetry Data Table -->
       <div class="panel-block">
         <div class="block-header">
           <span class="block-title">Mission Telemetry</span>
-          <span style="font-family:var(--font-mono); font-size:11px; color:var(--status-success);">REAL-TIME</span>
+          <span style="font-family:var(--font-mono); font-size:11px; color:var(--flir-green);">REAL-TIME</span>
         </div>
 
         <table class="table-compact">
@@ -817,7 +974,7 @@
           </tr>
           <tr>
             <td style="color:var(--text-secondary);">Radiation Exposure</td>
-            <td style="color:var(--status-warning);">42.8 mSv</td>
+            <td style="color:var(--flir-orange);">42.8 mSv</td>
           </tr>
           <tr>
             <td style="color:var(--text-secondary);">Microgravity Exposure</td>
@@ -828,7 +985,7 @@
         <!-- Real 24h Trend Sparkline -->
         <div style="margin-top:12px;">
           <div style="display:flex; justify-content:space-between; font-size:10px; color:var(--text-tertiary); font-family:var(--font-mono);">
-            <span>24H HEART RATE TREND</span>
+            <span>24H RESTING HEART RATE TREND</span>
             <span>RESTING BASELINE</span>
           </div>
           <canvas id="sparkline-canvas"></canvas>
@@ -839,7 +996,7 @@
       <div class="panel-block">
         <div class="block-header">
           <span class="block-title">Active Pathologies</span>
-          <span class="tag-badge warning" id="badge-total-alerts">3 Alerts</span>
+          <span class="tag-badge hazard" id="badge-total-alerts">3 Alerts</span>
         </div>
 
         <!-- Card 1: Cervical Spine -->
@@ -848,7 +1005,7 @@
             <div class="trigger-left">
               <span>Cervical Decompression</span>
             </div>
-            <span class="tag-badge critical" id="status-tag-neck">Active (+1.1cm)</span>
+            <span class="tag-badge hazard" id="status-tag-neck">Active (+1.1cm)</span>
           </div>
           <div class="card-content">
             Upper cervical vertebrae discs hydrated due to zero-g unloading. Posterior paraspinal muscle splinting identified.
@@ -859,12 +1016,12 @@
         </div>
 
         <!-- Card 2: Cranial / SANS -->
-        <div class="diagnostic-card expanded" id="card-sans">
-          <div class="card-trigger" onclick="toggleCard('card-sans', 'sans')">
+        <div class="diagnostic-card expanded" id="card-cranial">
+          <div class="card-trigger" onclick="toggleCard('card-cranial', 'cranial')">
             <div class="trigger-left">
               <span>Cranial Venous / SANS</span>
             </div>
-            <span class="tag-badge critical" id="status-tag-sans">Critical (5.8mm)</span>
+            <span class="tag-badge hazard" id="status-tag-cranial">Critical (5.8mm)</span>
           </div>
           <div class="card-content">
             Cephalic fluid redistribution has increased optic nerve sheath diameter to 5.8mm (Threshold 5.5mm). Early papilledema risk.
@@ -875,12 +1032,12 @@
         </div>
 
         <!-- Card 3: Lumbar Spine -->
-        <div class="diagnostic-card" id="card-spine">
-          <div class="card-trigger" onclick="toggleCard('card-spine', 'spine')">
+        <div class="diagnostic-card" id="card-lumbar">
+          <div class="card-trigger" onclick="toggleCard('card-lumbar', 'lumbar')">
             <div class="trigger-left">
               <span>Lumbar Elongation (L1-L5)</span>
             </div>
-            <span class="tag-badge critical" id="status-tag-spine">Active (+3.1cm)</span>
+            <span class="tag-badge hazard" id="status-tag-lumbar">Active (+3.1cm)</span>
           </div>
           <div class="card-content">
             Axial spinal column expanded by +3.1cm. Increased risk of acute disc herniation during heavy EVA tasks.
@@ -920,29 +1077,18 @@
         </div>
       </div>
 
-      <!-- Panel Block 4: Actionable AI Clinical Insights (Notion AI / Perplexity Style) -->
+      <!-- Panel Block 4: Actionable AI Clinical Insights -->
       <div class="panel-block" style="flex:1;">
         <div class="ai-insight-box">
           <div class="insight-header">
-            <span>Clinical Decision Insight</span>
+            <span>Clinical Decision Support</span>
           </div>
           <div class="insight-body">
-            Biometric trends indicate multi-system microgravity adaptation. SANS optic sheath expansion is the critical priority for the current orbital sleep cycle.
-          </div>
-
-          <div class="action-checklist">
-            <div class="checklist-row">
-              <span class="check-bullet">01</span>
-              <span>Execute 35-min Chibis-M / LBNP protocol before sleep cycle.</span>
-            </div>
-            <div class="checklist-row">
-              <span class="check-bullet">02</span>
-              <span>Engage ARED eccentric axial loading (80% 1RM) at Sol 143 MET 04:00.</span>
-            </div>
+            Thermal imaging highlights cranial venous engorgement and lumbar mechanical disc distension. SANS decompression is prioritized for orbital sleep cycle.
           </div>
 
           <button class="btn primary" style="width:100%; margin-top:14px; justify-content:center;" onclick="applyClinicalIntervention()">
-            <span>Apply Selected Clinical Intervention</span>
+            <span>Apply Selected NASA Countermeasure</span>
           </button>
         </div>
       </div>
@@ -954,20 +1100,20 @@
   <script>
     // System State
     const organStates = {
-      sans: 'critical',   // critical | recovered | nominal
-      neck: 'critical',
-      spine: 'critical',
+      cranial: 'hazard', // hazard | treated | nominal
+      neck: 'hazard',
+      lumbar: 'hazard',
       thorax: 'nominal',
-      femur: 'critical',
-      ankle: 'nominal'
+      femur: 'hazard'
     };
 
-    let selectedHotspot = 'sans';
-    let webcamActive = false;
+    let selectedHotspot = 'cranial';
+    let pipCameraActive = false;
     let cameraStream = null;
 
     // DOM Elements
     const video = document.getElementById('webcam-video');
+    const pipCard = document.getElementById('webcam-pip-card');
     const sparkCanvas = document.getElementById('sparkline-canvas');
     const sparkCtx = sparkCanvas.getContext('2d');
 
@@ -978,67 +1124,72 @@
     }
     window.addEventListener('resize', resizeSparkline);
 
-    // Switch Stage View Modes (Coronal Thermography | Spinal Alignment | Webcam Bio-Mirror)
-    async function switchStageMode(mode) {
+    // View Switching
+    function switchBodyView(view) {
       document.querySelectorAll('.seg-item').forEach(b => b.classList.remove('active'));
-      const svg = document.getElementById('thermal-svg');
+      const ring = document.getElementById('target-focus-ring');
 
-      if (mode === 'coronal') {
+      if (view === 'full') {
         document.getElementById('tab-coronal').classList.add('active');
-        svg.style.display = 'block';
-        stopWebcam();
-      } else if (mode === 'spine') {
+        ring.setAttribute('cx', 270); ring.setAttribute('cy', 88); ring.setAttribute('r', 32);
+      } else if (view === 'spine') {
         document.getElementById('tab-spine').classList.add('active');
-        svg.style.display = 'block';
-        stopWebcam();
-      } else if (mode === 'webcam') {
-        document.getElementById('tab-webcam').classList.add('active');
-        svg.style.display = 'block'; // blended over video
-        startWebcam();
+        ring.setAttribute('cx', 270); ring.setAttribute('cy', 260); ring.setAttribute('r', 65);
+      } else if (view === 'cranial') {
+        document.getElementById('tab-cranial').classList.add('active');
+        ring.setAttribute('cx', 270); ring.setAttribute('cy', 88); ring.setAttribute('r', 28);
       }
     }
 
-    async function startWebcam() {
-      if (webcamActive) return;
-      try {
-        cameraStream = await navigator.mediaDevices.getUserMedia({
-          video: { width: { ideal: 1280 }, height: { ideal: 720 } }
-        });
-        video.srcObject = cameraStream;
-        video.style.display = 'block';
-        webcamActive = true;
-      } catch (e) {
-        alert("Webcam permission denied or unavailable. Reverting to pure thermography view.");
-        switchStageMode('coronal');
-      }
-    }
-
-    function stopWebcam() {
-      if (cameraStream) {
-        cameraStream.getTracks().forEach(t => t.stop());
-      }
-      video.style.display = 'none';
-      webcamActive = false;
-    }
-
-    // Layer Visibility Toggles
-    function toggleSkeletonLayer() {
+    // Toggle Skeleton Overlay
+    function toggleSkeletonOverlay() {
       const checked = document.getElementById('check-skeleton').checked;
-      document.getElementById('skeleton-svg-layer').style.display = checked ? 'block' : 'none';
+      document.getElementById('skeleton-landmarks-group').style.display = checked ? 'block' : 'none';
     }
 
-    function toggleHeatmapLayer() {
-      const checked = document.getElementById('check-heatmap').checked;
-      document.getElementById('heatmap-svg-layer').style.display = checked ? 'block' : 'none';
+    // Toggle Thermal Map
+    function toggleThermalMap() {
+      const checked = document.getElementById('check-thermal').checked;
+      document.getElementById('heatmap-layer').style.display = checked ? 'block' : 'none';
     }
 
-    // Hotspot Selection
+    // Toggle Small Optional PIP Webcam Preview
+    async function toggleWebcamPIP() {
+      const checked = document.getElementById('check-pip').checked;
+      if (checked) {
+        try {
+          cameraStream = await navigator.mediaDevices.getUserMedia({
+            video: { width: 320, height: 240 }
+          });
+          video.srcObject = cameraStream;
+          pipCard.classList.add('visible');
+          pipCameraActive = true;
+        } catch (e) {
+          alert("Webcam permission denied or camera not found.");
+          document.getElementById('check-pip').checked = false;
+        }
+      } else {
+        if (cameraStream) {
+          cameraStream.getTracks().forEach(t => t.stop());
+        }
+        pipCard.classList.remove('visible');
+        pipCameraActive = false;
+      }
+    }
+
+    // Focus Hotspot & Accordion
     function focusDiagnosticZone(zone) {
       selectedHotspot = zone;
       document.querySelectorAll('.hotspot-pin').forEach(p => p.classList.remove('active'));
       event.currentTarget.classList.add('active');
 
-      // Expand matching card
+      const ring = document.getElementById('target-focus-ring');
+      if (zone === 'cranial') { ring.setAttribute('cx', 270); ring.setAttribute('cy', 88); ring.setAttribute('r', 32); }
+      else if (zone === 'neck') { ring.setAttribute('cx', 270); ring.setAttribute('cy', 148); ring.setAttribute('r', 22); }
+      else if (zone === 'lumbar') { ring.setAttribute('cx', 270); ring.setAttribute('cy', 280); ring.setAttribute('r', 45); }
+      else if (zone === 'thorax') { ring.setAttribute('cx', 270); ring.setAttribute('cy', 235); ring.setAttribute('r', 38); }
+      else if (zone === 'femur') { ring.setAttribute('cx', 248); ring.setAttribute('cy', 465); ring.setAttribute('r', 34); }
+
       const targetCard = document.getElementById(`card-${zone}`);
       if (targetCard) {
         document.querySelectorAll('.diagnostic-card').forEach(c => c.classList.remove('expanded'));
@@ -1046,56 +1197,51 @@
       }
     }
 
-    // Accordion Toggle
     function toggleCard(cardId, zone) {
       const card = document.getElementById(cardId);
       card.classList.toggle('expanded');
       selectedHotspot = zone;
     }
 
-    // Apply Intervention (Transitions State: critical -> recovered -> nominal)
+    // Apply Intervention (Transitions State: hazard -> treated -> nominal)
     function applyClinicalIntervention() {
       const cur = organStates[selectedHotspot];
-      if (cur === 'critical') {
-        organStates[selectedHotspot] = 'recovered';
-      } else if (cur === 'recovered') {
+      if (cur === 'hazard') {
+        organStates[selectedHotspot] = 'treated';
+      } else if (cur === 'treated') {
         organStates[selectedHotspot] = 'nominal';
       } else {
-        organStates[selectedHotspot] = 'critical';
+        organStates[selectedHotspot] = 'hazard';
       }
 
-      updateVisuals();
+      updateVisualShaders();
     }
 
-    function updateVisuals() {
-      // Update SVG Gradient Stops for the selected organ
+    function updateVisualShaders() {
       Object.keys(organStates).forEach(key => {
         const state = organStates[key];
-        const color = (state === 'critical') ? '#ef4444' : ((state === 'recovered') ? '#0284c7' : '#10b981');
-        const stop0 = document.getElementById(`stop-${key}-0`);
-        const stop1 = document.getElementById(`stop-${key}-1`);
-        if (stop0) stop0.setAttribute('stop-color', color);
-        if (stop1) stop1.setAttribute('stop-color', state === 'critical' ? '#f59e0b' : color);
+        const coreColor = (state === 'hazard') ? '#ef4444' : ((state === 'treated') ? '#2563eb' : '#10b981');
 
-        // Update Card Badges
+        const coreStop = document.getElementById(`stop-${key}-core`);
+        if (coreStop) coreStop.setAttribute('stop-color', coreColor);
+
+        // Update Card Badge
         const badge = document.getElementById(`status-tag-${key}`);
         if (badge) {
-          if (state === 'critical') {
-            badge.className = 'tag-badge critical';
+          if (state === 'hazard') {
+            badge.className = 'tag-badge hazard';
             badge.textContent = 'Active Hazard';
-          } else if (state === 'recovered') {
-            badge.className = 'tag-badge info';
-            badge.style.background = 'rgba(2, 132, 199, 0.15)';
-            badge.style.color = '#0284c7';
-            badge.textContent = 'Recovered (LBNP)';
+          } else if (state === 'treated') {
+            badge.className = 'tag-badge treated';
+            badge.textContent = 'Treated (LBNP)';
           } else {
-            badge.className = 'tag-badge success';
+            badge.className = 'tag-badge nominal';
             badge.textContent = 'Stabilized';
           }
         }
       });
 
-      const activeAlerts = Object.values(organStates).filter(s => s === 'critical').length;
+      const activeAlerts = Object.values(organStates).filter(s => s === 'hazard').length;
       document.getElementById('badge-total-alerts').textContent = `${activeAlerts} Alerts`;
     }
 
@@ -1105,39 +1251,43 @@
       event.currentTarget.classList.add('active');
 
       const pred = document.getElementById('lbl-prediction-score');
+      const scoreBadge = document.getElementById('val-stability-score');
 
       if (hour === 0) {
-        organStates.sans = 'critical';
-        organStates.neck = 'critical';
-        organStates.spine = 'critical';
+        organStates.cranial = 'hazard';
+        organStates.neck = 'hazard';
+        organStates.lumbar = 'hazard';
         pred.textContent = "87% Stable";
+        scoreBadge.textContent = "87% STABILIZED";
       } else if (hour === 6) {
-        organStates.sans = 'recovered';
-        organStates.neck = 'critical';
-        organStates.spine = 'recovered';
+        organStates.cranial = 'treated';
+        organStates.neck = 'hazard';
+        organStates.lumbar = 'treated';
         pred.textContent = "91% Stable";
+        scoreBadge.textContent = "91% STABILIZED";
       } else if (hour === 12) {
-        organStates.sans = 'recovered';
-        organStates.neck = 'recovered';
-        organStates.spine = 'nominal';
-        pred.textContent = "94% Stable";
+        organStates.cranial = 'treated';
+        organStates.neck = 'treated';
+        organStates.lumbar = 'nominal';
+        pred.textContent = "95% Stable";
+        scoreBadge.textContent = "95% STABILIZED";
       } else if (hour === 24) {
-        organStates.sans = 'nominal';
+        organStates.cranial = 'nominal';
         organStates.neck = 'nominal';
-        organStates.spine = 'nominal';
+        organStates.lumbar = 'nominal';
         pred.textContent = "98% Stable";
+        scoreBadge.textContent = "98% STABILIZED";
       }
 
-      updateVisuals();
+      updateVisualShaders();
     }
 
-    // Draw Scientific Sparkline (No Glow, Clean Vercel Style)
+    // Scientific Sparkline
     function drawSparkline() {
       const w = sparkCanvas.width;
       const h = sparkCanvas.height;
       sparkCtx.clearRect(0, 0, w, h);
 
-      // Grid line
       sparkCtx.strokeStyle = '#27272a';
       sparkCtx.lineWidth = 1;
       sparkCtx.beginPath();
@@ -1145,7 +1295,6 @@
       sparkCtx.lineTo(w, h * 0.5);
       sparkCtx.stroke();
 
-      // Clean Line Data
       const pts = [
         {x: 0, y: h * 0.55},
         {x: w * 0.15, y: h * 0.48},
@@ -1157,7 +1306,7 @@
         {x: w, y: h * 0.48}
       ];
 
-      sparkCtx.strokeStyle = '#3b82f6';
+      sparkCtx.strokeStyle = '#2563eb';
       sparkCtx.lineWidth = 1.5;
       sparkCtx.lineJoin = 'round';
       sparkCtx.beginPath();
@@ -1169,16 +1318,16 @@
     }
 
     function exportClinicalData() {
-      alert("NASA STD-3001 Clinical Encounter Telemetry Exported (JSON / DTN Payload Ready).");
+      alert("NASA STD-3001 Medical Telemetry Payload Generated.");
     }
 
-    function runClinicalRecalibration() {
-      alert("Bio-Scan Recalibrated: Sensor telemetry verified against ISO 13485 standards.");
+    function recalibrateSensors() {
+      alert("FLIR Sensor Emissivity Recalibrated (ε = 0.98).");
     }
 
-    // Initialize
+    // Init
     resizeSparkline();
-    updateVisuals();
+    updateVisualShaders();
   </script>
 </body>
 </html>
