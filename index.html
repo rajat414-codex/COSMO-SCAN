@@ -3,40 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>COSMO-SCAN | Dual-View Thermal Bio-Radiation Scanner</title>
+  <title>COSMO-SCAN | NASA Autonomous Thermographic Bio-Mirror</title>
   
-  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
-
-  <!-- MediaPipe Pose for Webcam Computer Vision -->
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --bg-dark: #07090e;
-      --bg-panel: #0d111a;
-      --bg-card: #131722;
+      --bg-void: #07090e;
+      --bg-panel: #0e121b;
+      --bg-card: #141a27;
       --border-subtle: rgba(255, 255, 255, 0.08);
-      --border-active: rgba(56, 189, 248, 0.4);
-
-      /* Diagnostic State Colors */
-      --defect-red: #ff1a3c;        /* Red: Defect / Spaceflight Damage / Inflammation */
-      --healthy-green: #00ff77;     /* Green: Healthy / Nominal Baseline */
-      --recovery-blue: #0088ff;     /* Blue: Countermeasure Recovered / Cooled */
-      --thermal-yellow: #ffee00;    /* Thermal Transition */
-
-      --text-white: #f8fafc;
+      --border-focus: #38bdf8;
+      
+      /* NASA Medical Color Standard */
+      --red-defect: #ef4444;       /* Active Defect / Inflammation / Spaceflight Hazard */
+      --blue-recover: #0284c7;     /* Recovering / Countermeasure Applied */
+      --green-healthy: #10b981;    /* Stabilized / Healthy Baseline */
+      --amber-alert: #f59e0b;      /* Advisory */
+      
+      --text-main: #f8fafc;
       --text-muted: #94a3b8;
-      --text-faint: #475569;
-
-      --font-ui: 'Plus Jakarta Sans', sans-serif;
-      --font-mono: 'JetBrains Mono', monospace;
-      --radius-sm: 6px;
-      --radius-md: 12px;
-      --radius-pill: 9999px;
+      --font-sans: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      --font-mono: 'IBM Plex Mono', monospace;
+      --radius: 8px;
     }
 
     * {
@@ -47,18 +38,18 @@
     }
 
     body {
-      background-color: var(--bg-dark);
-      color: var(--text-white);
-      font-family: var(--font-ui);
+      background-color: var(--bg-void);
+      color: var(--text-main);
+      font-family: var(--font-sans);
       height: 100vh;
       overflow: hidden;
       display: flex;
       flex-direction: column;
     }
 
-    /* Top Mission Header */
+    /* NASA Flight Header */
     header {
-      height: 56px;
+      height: 52px;
       padding: 0 24px;
       background: var(--bg-panel);
       border-bottom: 1px solid var(--border-subtle);
@@ -69,70 +60,76 @@
       z-index: 50;
     }
 
-    .brand-title {
+    .brand-left {
       display: flex;
       align-items: center;
       gap: 12px;
     }
 
-    .nasa-tag {
+    .nasa-badge {
       background: #1e3a8a;
       color: #93c5fd;
       font-family: var(--font-mono);
       font-size: 11px;
       font-weight: 700;
       padding: 3px 8px;
-      border-radius: var(--radius-sm);
+      border-radius: 4px;
+      letter-spacing: 0.5px;
     }
 
     .brand-text h1 {
       font-size: 15px;
       font-weight: 700;
-      letter-spacing: -0.3px;
       color: #fff;
-    }
-
-    .brand-text p {
-      font-size: 11px;
-      color: var(--text-muted);
-    }
-
-    .header-legend {
       display: flex;
       align-items: center;
-      gap: 18px;
+      gap: 8px;
+    }
+
+    .brand-text span {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      border-left: 1px solid var(--border-subtle);
+      padding-left: 8px;
+    }
+
+    .legend-bar {
+      display: flex;
+      align-items: center;
+      gap: 20px;
       font-family: var(--font-mono);
       font-size: 11px;
     }
 
-    .legend-item {
+    .legend-tag {
       display: flex;
       align-items: center;
       gap: 6px;
     }
 
-    .legend-dot {
+    .legend-indicator {
       width: 10px;
       height: 10px;
       border-radius: 50%;
     }
 
-    .legend-dot.red { background: var(--defect-red); box-shadow: 0 0 8px rgba(255, 26, 60, 0.7); }
-    .legend-dot.blue { background: var(--recovery-blue); box-shadow: 0 0 8px rgba(0, 136, 255, 0.7); }
-    .legend-dot.green { background: var(--healthy-green); box-shadow: 0 0 8px rgba(0, 255, 119, 0.7); }
+    .legend-indicator.red { background: var(--red-defect); box-shadow: 0 0 8px rgba(239, 68, 68, 0.6); }
+    .legend-indicator.blue { background: var(--blue-recover); box-shadow: 0 0 8px rgba(2, 132, 199, 0.6); }
+    .legend-indicator.green { background: var(--green-healthy); box-shadow: 0 0 8px rgba(16, 185, 129, 0.6); }
 
-    /* Dual Console Main Split */
-    .dual-console {
+    /* Main Console Grid: 50% Camera, 50% High-Def UV Thermal Body */
+    .console-split {
       flex: 1;
       display: grid;
-      grid-template-columns: 1fr 1.35fr;
+      grid-template-columns: 1fr 1.25fr;
       overflow: hidden;
       position: relative;
     }
 
-    /* LEFT SIDE: ASTRONAUT LIVE WEBCAM SCANNER */
-    .cam-pane {
-      background: #030509;
+    /* LEFT CONSOLE: LIVE CAMERA & TELEMETRY */
+    .cam-section {
+      background: #020408;
       border-right: 1px solid var(--border-subtle);
       display: flex;
       flex-direction: column;
@@ -140,270 +137,265 @@
       overflow: hidden;
     }
 
-    .pane-toolbar {
-      height: 44px;
+    .section-bar {
+      height: 40px;
       padding: 0 16px;
       background: var(--bg-panel);
       border-bottom: 1px solid var(--border-subtle);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      font-size: 11px;
       font-family: var(--font-mono);
+      font-size: 11px;
       color: var(--text-muted);
-      z-index: 20;
+      flex-shrink: 0;
     }
 
     .cam-viewport {
       flex: 1;
       position: relative;
+      background: #050811;
+      overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
-      overflow: hidden;
     }
 
     #webcam-video {
-      display: none;
-    }
-
-    #cam-canvas {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
       transform: scaleX(-1);
+      display: none;
     }
 
-    /* Camera HUD Overlay */
-    .cam-hud-box {
+    #cam-hud-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .cam-banner {
       position: absolute;
       top: 16px;
       left: 16px;
-      background: rgba(13, 17, 26, 0.85);
+      background: rgba(14, 18, 27, 0.88);
       border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-sm);
-      padding: 8px 12px;
+      border-radius: var(--radius);
+      padding: 10px 14px;
       font-family: var(--font-mono);
       font-size: 11px;
+      backdrop-filter: blur(12px);
       z-index: 20;
-      backdrop-filter: blur(8px);
     }
 
-    .cam-hud-box span {
-      display: block;
-      color: var(--text-muted);
-      font-size: 10px;
+    .cam-banner .val {
+      color: var(--green-healthy);
+      font-weight: 600;
     }
 
-    .cam-hud-box strong {
-      color: var(--healthy-green);
-    }
-
-    .cam-action-dock {
+    .cam-actions {
       position: absolute;
       bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
       gap: 10px;
-      z-index: 25;
+      z-index: 30;
     }
 
-    .btn-pill {
-      background: rgba(19, 23, 34, 0.9);
+    .action-btn {
+      background: rgba(20, 26, 39, 0.95);
       border: 1px solid var(--border-subtle);
       color: #fff;
-      padding: 8px 16px;
-      border-radius: var(--radius-pill);
-      font-family: var(--font-ui);
+      font-family: var(--font-sans);
       font-size: 12px;
       font-weight: 600;
+      padding: 9px 18px;
+      border-radius: 9999px;
       cursor: pointer;
       display: flex;
       align-items: center;
       gap: 8px;
-      backdrop-filter: blur(10px);
+      backdrop-filter: blur(12px);
       transition: all 0.2s;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
     }
 
-    .btn-pill:hover {
-      background: rgba(30, 38, 55, 0.95);
-      border-color: var(--border-active);
+    .action-btn:hover {
+      border-color: var(--border-focus);
+      background: #1e2638;
       transform: translateY(-1px);
     }
 
-    .btn-pill.primary {
+    .action-btn.primary {
       background: #2563eb;
       border-color: #3b82f6;
     }
 
-    /* RIGHT SIDE: UV / THERMAL RADIATION BODY MAP (MATCHING REFERENCE IMAGE) */
-    .thermal-pane {
-      background: #020306;
+    /* RIGHT CONSOLE: HIGH-DEFINITION UV THERMOGRAPHY BODY */
+    .thermal-section {
+      background: #03050a;
       display: flex;
       flex-direction: column;
       position: relative;
       overflow: hidden;
     }
 
-    .thermal-canvas-container {
+    .thermal-stage {
       flex: 1;
       position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
-    }
-
-    #thermal-body-canvas {
-      width: 100%;
-      height: 100%;
-      position: absolute;
-      inset: 0;
-    }
-
-    /* 6 CIRCULAR CALLOUT ZOOM LENSES (MATCHING THE REFERENCE IMAGE) */
-    .zoom-callout {
-      position: absolute;
-      width: 86px;
-      height: 86px;
-      border-radius: 50%;
-      background: #060911;
-      border: 2px solid var(--border-subtle);
       overflow: hidden;
-      cursor: pointer;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
-      transition: transform 0.25s, border-color 0.25s;
-      z-index: 30;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 6px;
     }
 
-    .zoom-callout:hover {
-      transform: scale(1.15);
-      z-index: 35;
-    }
-
-    .zoom-callout.defect {
-      border-color: var(--defect-red);
-      box-shadow: 0 0 16px rgba(255, 26, 60, 0.4);
-    }
-
-    .zoom-callout.recovered {
-      border-color: var(--recovery-blue);
-      box-shadow: 0 0 16px rgba(0, 136, 255, 0.4);
-    }
-
-    .zoom-callout.healthy {
-      border-color: var(--healthy-green);
-      box-shadow: 0 0 16px rgba(0, 255, 119, 0.4);
-    }
-
-    .zoom-callout .lens-title {
-      font-size: 9px;
-      font-weight: 700;
-      color: #fff;
-      line-height: 1.1;
-      margin-top: 2px;
-    }
-
-    .zoom-callout .lens-status {
-      font-family: var(--font-mono);
-      font-size: 8px;
-      font-weight: 600;
-      margin-top: 2px;
-    }
-
-    .zoom-callout.defect .lens-status { color: var(--defect-red); }
-    .zoom-callout.recovered .lens-status { color: var(--recovery-blue); }
-    .zoom-callout.healthy .lens-status { color: var(--healthy-green); }
-
-    /* SVG Connector Arrow Lines */
+    /* SVG Connecting Lines */
     #connector-svg {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
       pointer-events: none;
-      z-index: 25;
+      z-index: 15;
     }
 
-    /* RIGHT DRAWER / DIAGNOSTIC INSPECTOR CARD */
-    .diagnostic-drawer {
+    /* 6 ANATOMICAL CIRCULAR LOUPE CALLOUTS (EXACT REFERENCE DESIGN) */
+    .anatomical-lens {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: #090d16;
+      border: 2px solid var(--border-subtle);
+      overflow: hidden;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.85);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 25;
+      padding: 4px;
+    }
+
+    .anatomical-lens:hover {
+      transform: scale(1.16);
+      z-index: 35;
+    }
+
+    .anatomical-lens.defect {
+      border-color: var(--red-defect);
+      box-shadow: 0 0 20px rgba(239, 68, 68, 0.45);
+    }
+
+    .anatomical-lens.recovered {
+      border-color: var(--blue-recover);
+      box-shadow: 0 0 20px rgba(2, 132, 199, 0.45);
+    }
+
+    .anatomical-lens.healthy {
+      border-color: var(--green-healthy);
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.45);
+    }
+
+    .lens-graphic {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      margin-bottom: 2px;
+    }
+
+    .anatomical-lens.defect .lens-graphic { background: rgba(239, 68, 68, 0.18); }
+    .anatomical-lens.recovered .lens-graphic { background: rgba(2, 132, 199, 0.18); }
+    .anatomical-lens.healthy .lens-graphic { background: rgba(16, 185, 129, 0.18); }
+
+    .lens-title {
+      font-size: 10px;
+      font-weight: 700;
+      color: #fff;
+      text-align: center;
+      line-height: 1.15;
+    }
+
+    .lens-tag {
+      font-family: var(--font-mono);
+      font-size: 8px;
+      font-weight: 600;
+      margin-top: 2px;
+    }
+
+    .anatomical-lens.defect .lens-tag { color: var(--red-defect); }
+    .anatomical-lens.recovered .lens-tag { color: var(--blue-recover); }
+    .anatomical-lens.healthy .lens-tag { color: var(--green-healthy); }
+
+    /* CLINICAL INSPECTOR DRAWER (TREATMENT CONTROLS) */
+    .inspector-card {
       position: absolute;
       bottom: 20px;
       right: 20px;
-      width: 340px;
-      background: rgba(13, 17, 26, 0.94);
-      border: 1px solid var(--border-active);
-      border-radius: var(--radius-md);
+      width: 350px;
+      background: rgba(14, 18, 27, 0.94);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius);
       padding: 18px;
-      backdrop-filter: blur(16px);
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(20px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7);
       z-index: 40;
     }
 
-    .drawer-header {
+    .inspector-top {
       display: flex;
       align-items: center;
       justify-content: space-between;
       margin-bottom: 8px;
     }
 
-    .defect-badge {
+    .status-badge {
       font-family: var(--font-mono);
       font-size: 10px;
       font-weight: 700;
-      padding: 2px 8px;
-      border-radius: var(--radius-pill);
+      padding: 3px 8px;
+      border-radius: 9999px;
     }
 
-    .defect-badge.red {
-      background: rgba(255, 26, 60, 0.2);
-      color: var(--defect-red);
-      border: 1px solid var(--defect-red);
-    }
+    .status-badge.red { background: rgba(239, 68, 68, 0.2); color: var(--red-defect); border: 1px solid var(--red-defect); }
+    .status-badge.blue { background: rgba(2, 132, 199, 0.2); color: var(--blue-recover); border: 1px solid var(--blue-recover); }
+    .status-badge.green { background: rgba(16, 185, 129, 0.2); color: var(--green-healthy); border: 1px solid var(--green-healthy); }
 
-    .defect-badge.blue {
-      background: rgba(0, 136, 255, 0.2);
-      color: var(--recovery-blue);
-      border: 1px solid var(--recovery-blue);
-    }
-
-    .defect-badge.green {
-      background: rgba(0, 255, 119, 0.2);
-      color: var(--healthy-green);
-      border: 1px solid var(--healthy-green);
-    }
-
-    .drawer-title {
+    .inspector-title {
       font-size: 14px;
       font-weight: 700;
       color: #fff;
     }
 
-    .drawer-desc {
+    .inspector-desc {
       font-size: 11px;
       color: var(--text-muted);
-      line-height: 1.45;
+      line-height: 1.5;
       margin: 8px 0 14px;
     }
 
-    .countermeasure-btn {
+    .treat-btn {
       width: 100%;
-      background: linear-gradient(135deg, #2563eb, #3b82f6);
+      background: linear-gradient(135deg, #2563eb, #38bdf8);
       border: none;
       color: #fff;
-      font-family: var(--font-ui);
+      font-family: var(--font-sans);
       font-size: 12px;
       font-weight: 700;
       padding: 10px;
-      border-radius: var(--radius-sm);
+      border-radius: var(--radius);
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -412,7 +404,7 @@
       transition: all 0.2s;
     }
 
-    .countermeasure-btn:hover {
+    .treat-btn:hover {
       background: linear-gradient(135deg, #1d4ed8, #2563eb);
       transform: translateY(-1px);
     }
@@ -420,144 +412,268 @@
 </head>
 <body>
 
-  <!-- Top Navigation Header with Strict Color Code Legend -->
+  <!-- Top Flight Telemetry Header -->
   <header>
-    <div class="brand-title">
-      <span class="nasa-tag">NASA HRP</span>
+    <div class="brand-left">
+      <span class="nasa-badge">NASA HRP</span>
       <div class="brand-text">
-        <h1>COSMO-SCAN // UV RADIATION & THERMAL DEFECT MAPPING</h1>
-        <p>Microgravity Pathophysiology Dual-Mirror Telemetry</p>
+        <h1>COSMO-SCAN <span>AUTONOMOUS THERMOGRAPHIC BIO-MIRROR</span></h1>
       </div>
     </div>
 
-    <!-- The 3-Color Meaning Requested by User -->
-    <div class="header-legend">
-      <div class="legend-item">
-        <div class="legend-dot red"></div>
+    <!-- The 3-Color Protocol -->
+    <div class="legend-bar">
+      <div class="legend-tag">
+        <div class="legend-indicator red"></div>
         <span>DARK RED: ACTIVE DEFECT</span>
       </div>
-      <div class="legend-item">
-        <div class="legend-dot blue"></div>
-        <span>BLUE: RECOVERING / TREATED</span>
+      <div class="legend-tag">
+        <div class="legend-indicator blue"></div>
+        <span>BLUE: RECOVERED / TREATED</span>
       </div>
-      <div class="legend-item">
-        <div class="legend-dot green"></div>
-        <span>GREEN: HEALTHY / STABILIZED</span>
+      <div class="legend-tag">
+        <div class="legend-indicator green"></div>
+        <span>GREEN: HEALTHY BASELINE</span>
       </div>
     </div>
   </header>
 
   <!-- Dual Split Console -->
-  <div class="dual-console">
+  <div class="console-split">
     
-    <!-- LEFT SIDE: LIVE WEBCAM ASTRONAUT TRACKER -->
-    <div class="cam-pane">
-      <div class="pane-toolbar">
+    <!-- LEFT SIDE: REAL-TIME WEBCAM ASTRONAUT TRACKER -->
+    <div class="cam-section">
+      <div class="section-bar">
         <span>CAM-01: CREW HABITAT OPTICAL SENSOR</span>
-        <span id="cam-status" style="color:var(--healthy-green);">60 FPS // TRACKING ACTIVE</span>
+        <span id="cam-status" style="color:var(--green-healthy);">FEED ACTIVE // 60 FPS</span>
       </div>
 
-      <div class="cam-viewport" id="cam-container">
-        <!-- Live Video Element -->
-        <video id="webcam-video" playsinline></video>
-        <!-- Canvas Render -->
-        <canvas id="cam-canvas"></canvas>
+      <div class="cam-viewport" id="cam-viewport">
+        <!-- Real Video Element -->
+        <video id="webcam-video" autoplay playsinline muted></video>
+        <!-- Canvas Overlay -->
+        <canvas id="cam-hud-canvas"></canvas>
 
-        <div class="cam-hud-box">
-          <span>SUBJECT IDENTIFIED:</span>
-          <strong>CDR. ALEXA VANCE (US-0442)</strong>
-          <span style="margin-top:4px;">POSE ALIGNMENT: <strong>CORONAL T-POSE</strong></span>
+        <div class="cam-banner">
+          <div style="font-size:10px; color:var(--text-muted);">SUBJECT TRACKED:</div>
+          <div class="val">CDR. ALEXA VANCE (US-0442)</div>
+          <div style="font-size:10px; color:var(--text-muted); margin-top:4px;">CAMERA STATE: <span id="cam-state-label" class="val">SIMULATION STREAM</span></div>
         </div>
 
-        <div class="cam-action-dock">
-          <button class="btn-pill primary" id="btn-toggle-cam" onclick="toggleCamera()">
-            <span>📷</span> <span id="cam-btn-label">SWITCH TO WEBCAM</span>
+        <div class="cam-actions">
+          <button class="action-btn primary" id="btn-toggle-cam" onclick="toggleLiveWebcam()">
+            <span>📷</span> <span id="cam-btn-text">ENABLE LIVE WEBCAM</span>
           </button>
-          <button class="btn-pill" onclick="simulateFullBodyRecovery()">
-            <span>✨</span> TREAT ALL DEFECTS (TEST)
+          <button class="action-btn" onclick="cycleAllTreatments()">
+            <span>✨</span> TREAT ALL DEFECTS (CYCLE)
           </button>
         </div>
       </div>
     </div>
 
-    <!-- RIGHT SIDE: UV / RADIATIONAL THERMAL BODY (FROM PINTEREST REFERENCE) -->
-    <div class="thermal-pane">
-      <div class="pane-toolbar">
+    <!-- RIGHT SIDE: HIGH-DEFINITION UV THERMOGRAPHY BODY (MATCHING REFERENCE PINTEREST IMAGE) -->
+    <div class="thermal-section">
+      <div class="section-bar">
         <span>THERMOGRAPHIC RADIATIONAL MAP // UV DEFECT DETECTION</span>
-        <span style="color:var(--defect-red);">3 ACTIVE HAZARDS IDENTIFIED</span>
+        <span id="defect-counter" style="color:var(--red-defect); font-weight:700;">4 ACTIVE SPACE HAZARDS</span>
       </div>
 
-      <div class="thermal-canvas-container" id="thermal-container">
-        <!-- Canvas Rendering of UV Radiation Heatmap Body -->
-        <canvas id="thermal-body-canvas"></canvas>
-
-        <!-- SVG Line Connectors to Circular Zoom Loupes -->
+      <div class="thermal-stage" id="thermal-stage">
+        
+        <!-- SVG Vector Connectors to 6 Circular Loupes -->
         <svg id="connector-svg">
-          <!-- Dynamically populated or drawn in JS -->
-          <line id="line-sans" stroke="rgba(255,26,60,0.6)" stroke-width="1.5" stroke-dasharray="3,3" />
-          <line id="line-neck" stroke="rgba(255,26,60,0.6)" stroke-width="1.5" stroke-dasharray="3,3" />
-          <line id="line-spine" stroke="rgba(255,26,60,0.6)" stroke-width="1.5" stroke-dasharray="3,3" />
-          <line id="line-thorax" stroke="rgba(0,136,255,0.6)" stroke-width="1.5" stroke-dasharray="3,3" />
-          <line id="line-femur" stroke="rgba(255,26,60,0.6)" stroke-width="1.5" stroke-dasharray="3,3" />
-          <line id="line-ankle" stroke="rgba(0,255,119,0.6)" stroke-width="1.5" stroke-dasharray="3,3" />
+          <line id="line-neck" stroke="rgba(239,68,68,0.7)" stroke-width="1.5" stroke-dasharray="4,4" />
+          <line id="line-sans" stroke="rgba(239,68,68,0.7)" stroke-width="1.5" stroke-dasharray="4,4" />
+          <line id="line-thorax" stroke="rgba(2,132,199,0.7)" stroke-width="1.5" stroke-dasharray="4,4" />
+          <line id="line-spine" stroke="rgba(239,68,68,0.7)" stroke-width="1.5" stroke-dasharray="4,4" />
+          <line id="line-femur" stroke="rgba(239,68,68,0.7)" stroke-width="1.5" stroke-dasharray="4,4" />
+          <line id="line-ankle" stroke="rgba(16,185,129,0.7)" stroke-width="1.5" stroke-dasharray="4,4" />
         </svg>
 
-        <!-- 6 CIRCULAR ZOOM-IN CALLOUT LENSES (Exact layout as Pinterest image) -->
+        <!-- HIGH-FIDELITY ANATOMICAL BODY SVG WITH MEDICAL THERMOGRAPHIC SHADER -->
+        <svg id="human-body-svg" viewBox="0 0 500 700" style="height:88%; max-height:640px; z-index:10; filter: drop-shadow(0 0 25px rgba(0, 50, 150, 0.4));">
+          <defs>
+            <!-- Thermographic Gradients -->
+            <radialGradient id="grad-cranial" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" id="stop-cranial-0" stop-color="#ef4444" />
+              <stop offset="50%" id="stop-cranial-1" stop-color="#f59e0b" />
+              <stop offset="85%" stop-color="#10b981" />
+              <stop offset="100%" stop-color="#0284c7" />
+            </radialGradient>
+
+            <radialGradient id="grad-neck" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" id="stop-neck-0" stop-color="#ef4444" />
+              <stop offset="60%" id="stop-neck-1" stop-color="#f59e0b" />
+              <stop offset="100%" stop-color="#0284c7" />
+            </radialGradient>
+
+            <linearGradient id="grad-spine" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" id="stop-spine-0" stop-color="#ef4444" />
+              <stop offset="50%" id="stop-spine-1" stop-color="#ef4444" />
+              <stop offset="100%" stop-color="#0284c7" />
+            </linearGradient>
+
+            <radialGradient id="grad-thorax" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" id="stop-thorax-0" stop-color="#0284c7" />
+              <stop offset="70%" stop-color="#10b981" />
+              <stop offset="100%" stop-color="#075985" />
+            </radialGradient>
+
+            <radialGradient id="grad-femur" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" id="stop-femur-0" stop-color="#ef4444" />
+              <stop offset="50%" id="stop-femur-1" stop-color="#f59e0b" />
+              <stop offset="100%" stop-color="#0284c7" />
+            </radialGradient>
+
+            <radialGradient id="grad-ankle" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" id="stop-ankle-0" stop-color="#10b981" />
+              <stop offset="80%" stop-color="#0284c7" />
+              <stop offset="100%" stop-color="#031535" />
+            </radialGradient>
+
+            <!-- Glow Filters -->
+            <filter id="thermal-glow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="8" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
+
+          <!-- 1. Deep UV Base Silhouette (Outstretched T-Pose from Pinterest Image) -->
+          <path d="
+            M 250,55 
+            C 268,55 280,72 280,95 
+            C 280,118 268,135 258,142
+            L 282,150 
+            L 360,165 
+            L 470,180 
+            L 475,202 
+            L 365,198 
+            L 295,192 
+            L 282,240 
+            L 285,320 
+            C 288,345 282,370 280,390
+            L 272,490 
+            L 265,580 
+            L 268,645 
+            L 255,650 
+            L 250,430 
+            L 245,650 
+            L 232,645 
+            L 235,580 
+            L 228,490 
+            L 220,390 
+            C 218,370 212,345 215,320
+            L 218,240 
+            L 205,192 
+            L 135,198 
+            L 25,202 
+            L 30,180 
+            L 140,165 
+            L 218,150 
+            L 242,142 
+            C 232,135 220,118 220,95 
+            C 220,72 232,55 250,55 Z" 
+            fill="#06122d" 
+            stroke="#0284c7" 
+            stroke-width="1.5" 
+          />
+
+          <!-- 2. Mid Thermographic Emerald Layer (Healthy Core) -->
+          <path d="
+            M 250,70 
+            C 260,70 270,82 270,95 
+            C 270,110 260,125 250,130 
+            C 240,125 230,110 230,95 
+            C 230,82 240,70 250,70 Z
+            M 240,145 L 260,145 L 272,240 L 268,360 L 250,380 L 232,360 L 228,240 Z"
+            fill="#10b981" 
+            opacity="0.35" 
+            filter="url(#thermal-glow)"
+          />
+
+          <!-- 3. Cranial SANS Defect Spot -->
+          <circle cx="250" cy="95" r="22" fill="url(#grad-cranial)" filter="url(#thermal-glow)" />
+
+          <!-- 4. Cervical Spine Hotspot (Neck) -->
+          <ellipse cx="250" cy="148" rx="14" ry="10" fill="url(#grad-neck)" filter="url(#thermal-glow)" />
+
+          <!-- 5. Lumbar Spine Column (L1-L5) -->
+          <path d="M 246,160 L 254,160 L 254,340 L 246,340 Z" fill="url(#grad-spine)" filter="url(#thermal-glow)" />
+
+          <!-- 6. Thoracic Heart Region -->
+          <circle cx="240" cy="210" r="26" fill="url(#grad-thorax)" opacity="0.85" filter="url(#thermal-glow)" />
+
+          <!-- 7. Femur Bone Loss Hotspots -->
+          <ellipse cx="232" cy="440" rx="14" ry="42" fill="url(#grad-femur)" filter="url(#thermal-glow)" />
+          <ellipse cx="268" cy="440" rx="14" ry="42" fill="url(#grad-femur)" filter="url(#thermal-glow)" />
+
+          <!-- 8. Plantar Ankles & Feet -->
+          <ellipse cx="236" cy="625" rx="12" ry="16" fill="url(#grad-ankle)" filter="url(#thermal-glow)" />
+          <ellipse cx="264" cy="625" rx="12" ry="16" fill="url(#grad-ankle)" filter="url(#thermal-glow)" />
+
+          <!-- Target Reticle (Follows Selection) -->
+          <circle id="target-focus-ring" cx="250" cy="95" r="30" fill="none" stroke="#ffffff" stroke-width="2" stroke-dasharray="6,4" />
+        </svg>
+
+        <!-- 6 CIRCULAR MAGNIFIED CALLOUTS (EXACT REFERENCE DESIGN) -->
         
-        <!-- 1. Upper Left: Cervical Spine / Neck Zoom -->
-        <div class="zoom-callout defect" id="callout-neck" style="top: 15%; left: 16%;" onclick="selectOrgan('neck')">
-          <span style="font-size:16px;">🦴</span>
-          <span class="lens-title">Cervical Spine</span>
-          <span class="lens-status" id="status-neck">DEFECT (RED)</span>
+        <!-- 1. Upper Left: Cervical Spine (Neck) -->
+        <div class="anatomical-lens defect" id="lens-neck" style="top: 12%; left: 14%;" onclick="inspectOrgan('neck')">
+          <div class="lens-graphic">🦴</div>
+          <div class="lens-title">Cervical Spine</div>
+          <div class="lens-tag" id="tag-neck">DEFECT (RED)</div>
         </div>
 
-        <!-- 2. Mid Left: Abdominal & Fluid Pooling Zoom -->
-        <div class="zoom-callout recovered" id="callout-thorax" style="top: 42%; left: 14%;" onclick="selectOrgan('thorax')">
-          <span style="font-size:16px;">🫀</span>
-          <span class="lens-title">Thorax & Heart</span>
-          <span class="lens-status" id="status-thorax">RECOVERED (BLUE)</span>
+        <!-- 2. Mid Left: Thoracic Fluid & Heart -->
+        <div class="anatomical-lens recovered" id="lens-thorax" style="top: 38%; left: 12%;" onclick="inspectOrgan('thorax')">
+          <div class="lens-graphic">🫀</div>
+          <div class="lens-title">Thorax / Heart</div>
+          <div class="lens-tag" id="tag-thorax">RECOVERED (BLUE)</div>
         </div>
 
-        <!-- 3. Lower Left: Lower Shin & Ankle Impact -->
-        <div class="zoom-callout healthy" id="callout-ankle" style="top: 72%; left: 16%;" onclick="selectOrgan('ankle')">
-          <span style="font-size:16px;">🦶</span>
-          <span class="lens-title">Ankles & Feet</span>
-          <span class="lens-status" id="status-ankle">HEALTHY (GREEN)</span>
+        <!-- 3. Lower Left: Plantar Feet & Ankles -->
+        <div class="anatomical-lens healthy" id="lens-ankle" style="top: 68%; left: 14%;" onclick="inspectOrgan('ankle')">
+          <div class="lens-graphic">🦶</div>
+          <div class="lens-title">Ankles / Feet</div>
+          <div class="lens-tag" id="tag-ankle">HEALTHY (GREEN)</div>
         </div>
 
-        <!-- 4. Upper Right: Cranial / Head Profile (SANS) -->
-        <div class="zoom-callout defect" id="callout-sans" style="top: 15%; right: 16%;" onclick="selectOrgan('sans')">
-          <span style="font-size:16px;">👁️</span>
-          <span class="lens-title">Cranial & SANS</span>
-          <span class="lens-status" id="status-sans">DEFECT (RED)</span>
+        <!-- 4. Upper Right: Cranial / Head (SANS) -->
+        <div class="anatomical-lens defect" id="lens-sans" style="top: 12%; right: 14%;" onclick="inspectOrgan('sans')">
+          <div class="lens-graphic">👁️</div>
+          <div class="lens-title">Cranial & SANS</div>
+          <div class="lens-tag" id="tag-sans">DEFECT (RED)</div>
         </div>
 
-        <!-- 5. Mid Right: Lumbar Axial Spine Extension -->
-        <div class="zoom-callout defect" id="callout-spine" style="top: 42%; right: 14%;" onclick="selectOrgan('spine')">
-          <span style="font-size:16px;">⚡</span>
-          <span class="lens-title">L1-L5 Lumbar</span>
-          <span class="lens-status" id="status-spine">DEFECT (RED)</span>
+        <!-- 5. Mid Right: Lumbar L1-L5 Decompression -->
+        <div class="anatomical-lens defect" id="lens-spine" style="top: 38%; right: 12%;" onclick="inspectOrgan('spine')">
+          <div class="lens-graphic">⚡</div>
+          <div class="lens-title">L1-L5 Lumbar</div>
+          <div class="lens-tag" id="tag-spine">DEFECT (RED)</div>
         </div>
 
-        <!-- 6. Lower Right: Femur Bone Mineral Decay -->
-        <div class="zoom-callout defect" id="callout-femur" style="top: 72%; right: 16%;" onclick="selectOrgan('femur')">
-          <span style="font-size:16px;">🦵</span>
-          <span class="lens-title">Proximal Femur</span>
-          <span class="lens-status" id="status-femur">DEFECT (RED)</span>
+        <!-- 6. Lower Right: Proximal Femur Bone Loss -->
+        <div class="anatomical-lens defect" id="lens-femur" style="top: 68%; right: 14%;" onclick="inspectOrgan('femur')">
+          <div class="lens-graphic">🦵</div>
+          <div class="lens-title">Femur BMD</div>
+          <div class="lens-tag" id="tag-femur">DEFECT (RED)</div>
         </div>
 
-        <!-- Interactive Diagnostic Inspector Drawer -->
-        <div class="diagnostic-drawer" id="diag-drawer">
-          <div class="drawer-header">
-            <span class="drawer-title" id="diag-title">Cranial Cephalic Fluid Shift (SANS)</span>
-            <span class="defect-badge red" id="diag-badge">DEFECT (DARK RED)</span>
+        <!-- CLINICAL INSPECTION & TREATMENT DRAWER -->
+        <div class="inspector-card">
+          <div class="inspector-top">
+            <span class="inspector-title" id="insp-title">Cranial Optic Sheath (SANS)</span>
+            <span class="status-badge red" id="insp-badge">DEFECT (DARK RED)</span>
           </div>
 
-          <p class="drawer-desc" id="diag-desc">
-            Microgravity cephalic fluid redistribution has engorged cranial vessels. Optic nerve sheath is expanded to 5.8mm, causing visual degradation and papilledema risk.
+          <p class="inspector-desc" id="insp-desc">
+            Microgravity cephalic fluid migration has engorged cranial veins. Optic nerve sheath diameter is expanded to 5.8mm, risking visual acuity degradation and disc edema.
           </p>
 
-          <button class="countermeasure-btn" id="btn-treat" onclick="applyCountermeasure()">
+          <button class="treat-btn" id="btn-apply-treatment" onclick="applyTreatment()">
             <span>⚡</span> Apply NASA Countermeasure
           </button>
         </div>
@@ -567,505 +683,294 @@
 
   </div>
 
-  <!-- Audio Synthesis for Haptics & Treatment Chimes -->
   <script>
-    class SoundFX {
-      constructor() {
-        this.ctx = null;
-      }
-      init() {
-        if (!this.ctx) {
-          const AudioContext = window.AudioContext || window.webkitAudioContext;
-          this.ctx = new AudioContext();
-        }
-      }
-      playClick() {
-        this.init();
-        const osc = this.ctx.createOscillator();
-        const gain = this.ctx.createGain();
-        osc.frequency.setValueAtTime(600, this.ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(800, this.ctx.currentTime + 0.05);
-        gain.gain.setValueAtTime(0.05, this.ctx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.0001, this.ctx.currentTime + 0.05);
-        osc.connect(gain);
-        gain.connect(this.ctx.destination);
-        osc.start();
-        osc.stop(this.ctx.currentTime + 0.05);
-      }
-      playHeal() {
-        this.init();
-        const now = this.ctx.currentTime;
-        [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
-          const osc = this.ctx.createOscillator();
-          const gain = this.ctx.createGain();
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(freq, now + idx * 0.08);
-          gain.gain.setValueAtTime(0.04, now + idx * 0.08);
-          gain.gain.linearRampToValueAtTime(0.0001, now + idx * 0.08 + 0.25);
-          osc.connect(gain);
-          gain.connect(this.ctx.destination);
-          osc.start(now + idx * 0.08);
-          osc.stop(now + idx * 0.08 + 0.25);
-        });
-      }
-    }
-    const sfx = new SoundFX();
-  </script>
-
-  <!-- Main UV Heatmap & Real-Time Computer Vision Logic -->
-  <script>
-    // State of each body part: 'red' (defect) | 'blue' (recovering/treated) | 'green' (healthy)
+    // State of each body part: 'red' (Defect) | 'blue' (Recovered) | 'green' (Healthy)
     const organStates = {
-      sans: 'red',       // Cranial/eyes
-      neck: 'red',       // Cervical spine
-      spine: 'red',      // Lumbar L1-L5
-      thorax: 'blue',    // Chest/Heart
-      femur: 'red',      // Femurs/bone density
-      ankle: 'green'     // Feet/ankles
+      sans: 'red',
+      neck: 'red',
+      spine: 'red',
+      thorax: 'blue',
+      femur: 'red',
+      ankle: 'green'
     };
 
     let selectedOrgan = 'sans';
-    let isWebcamMode = false;
-    let cameraInstance = null;
-    let poseInstance = null;
+    let isLiveCamera = false;
+    let cameraStream = null;
 
-    // DOM References
-    const camCanvas = document.getElementById('cam-canvas');
-    const camCtx = camCanvas.getContext('2d');
-    const thermalCanvas = document.getElementById('thermal-body-canvas');
-    const thermalCtx = thermalCanvas.getContext('2d');
-    const video = document.getElementById('webcam-video');
-
-    function resizeCanvases() {
-      const camBox = document.getElementById('cam-container');
-      camCanvas.width = camBox.clientWidth;
-      camCanvas.height = camBox.clientHeight;
-
-      const thermalBox = document.getElementById('thermal-container');
-      thermalCanvas.width = thermalBox.clientWidth;
-      thermalCanvas.height = thermalBox.clientHeight;
-
-      updateConnectors();
-    }
-    window.addEventListener('resize', resizeCanvases);
-
-    // Organ Defect Data
+    // Organ Clinical Descriptions & NASA Countermeasures
     const organData = {
       sans: {
-        title: "Cranial Cephalic Fluid Shift (SANS)",
-        desc: "Microgravity cephalic fluid redistribution has engorged cranial vessels. Optic nerve sheath is expanded to 5.8mm, causing visual degradation and papilledema risk.",
-        treatment: "Conduct 35-min Lower Body Negative Pressure (LBNP) session at -35 mmHg to redistribute fluid caudal."
+        title: "Cranial Optic Sheath (SANS)",
+        desc: "Microgravity cephalic fluid migration has engorged cranial veins. Optic nerve sheath is expanded to 5.8mm, risking visual acuity degradation and disc edema.",
+        action: "Conduct 35-min Lower Body Negative Pressure (LBNP) chamber cycle at -35 mmHg."
       },
       neck: {
         title: "C1-C7 Cervical Spine Decompression",
-        desc: "Absence of gravitational compressive load has extended upper cervical discs by +1.1cm, causing paraspinal muscle splinting and neck rigidity.",
-        treatment: "Perform cervical isometric resistance bands + gentle axial traction release."
+        desc: "Zero-gravity unloading has hydrated upper cervical discs, extending neck vertebrae by +1.1cm and inducing posterior paraspinal muscle splinting.",
+        action: "Perform cervical isometric resistance bands + gentle axial traction release."
       },
       spine: {
         title: "L1-L5 Lumbar Axial Elongation (+3.1cm)",
-        desc: "Intervertebral disc hyper-hydration has increased total astronaut height by 3.1cm, placing excessive strain on posterior longitudinal ligaments.",
-        treatment: "Execute 45-min eccentric deadlifts and squats on ARED at 80% 1RM to restore axial mechanical loading."
+        desc: "Absence of axial gravity has expanded intervertebral discs by +3.1cm, creating lower back stiffness and disc herniation vulnerability.",
+        action: "Execute 45-min eccentric deadlifts and squats on ARED at 80% 1RM."
       },
       thorax: {
-        title: "Thoracic & Cardiovascular Fluid Balance",
+        title: "Thoracic Cardiovascular Volume",
         desc: "Central venous blood pooling in thoracic cavity. Left ventricular stroke volume nominal at 74mL, recovering following LBNP cycle.",
-        treatment: "Maintain standard cycle ergometer protocol (30 min daily at 75% VO2 max)."
+        action: "Maintain standard cycle ergometer protocol (30 min daily at 75% VO2 max)."
       },
       femur: {
         title: "Proximal Femur Bone Mineral Decay (-1.2%/mo)",
-        desc: "Weight-bearing skeletal osteoclasts outpace osteoblasts due to zero-g unloading. High fracture risk if untreated during lunar EVA.",
-        treatment: "High-impact axial mechanical loading on ARED + 2000 IU Vitamin D3 daily."
+        desc: "Weight-bearing skeletal osteoclasts outpace osteoblasts due to microgravity unloading. High fracture risk during planetary surface EVA.",
+        action: "High-impact axial mechanical loading on ARED + 2000 IU Vitamin D3 daily."
       },
       ankle: {
-        title: "Ankle & Plantar Sensorimotor Health",
-        desc: "Proprioceptive plantar nerve signals stabilized. Normal neuromuscular recruitment, minimal tendon contracture.",
-        treatment: "Maintain baseline toe-raise stretches and calf resistance."
+        title: "Ankle & Plantar Neuromuscular Baseline",
+        desc: "Proprioceptive plantar nerve signals stabilized. Normal neuromuscular recruitment, minimal Achilles tendon contracture.",
+        action: "Maintain baseline toe-raise stretches and calf resistance."
       }
     };
 
-    function selectOrgan(key) {
-      sfx.playClick();
-      selectedOrgan = key;
-      const data = organData[key];
-      const state = organStates[key];
+    // DOM Canvases
+    const hudCanvas = document.getElementById('cam-hud-canvas');
+    const hudCtx = hudCanvas.getContext('2d');
+    const videoElem = document.getElementById('webcam-video');
 
-      document.getElementById('diag-title').textContent = data.title;
-      document.getElementById('diag-desc').textContent = data.desc;
-
-      const badge = document.getElementById('diag-badge');
-      if (state === 'red') {
-        badge.className = 'defect-badge red';
-        badge.textContent = 'DEFECT (DARK RED)';
-        document.getElementById('btn-treat').innerHTML = '<span>⚡</span> Apply NASA Countermeasure';
-      } else if (state === 'blue') {
-        badge.className = 'defect-badge blue';
-        badge.textContent = 'RECOVERED (BLUE)';
-        document.getElementById('btn-treat').innerHTML = '<span>✔️</span> Stabilize to Healthy (Green)';
-      } else {
-        badge.className = 'defect-badge green';
-        badge.textContent = 'HEALTHY (GREEN)';
-        document.getElementById('btn-treat').innerHTML = '<span>🔄</span> Re-simulate Space Defect';
-      }
+    function resizeHUD() {
+      const parent = document.getElementById('cam-viewport');
+      hudCanvas.width = parent.clientWidth;
+      hudCanvas.height = parent.clientHeight;
+      updateConnectorLines();
     }
+    window.addEventListener('resize', resizeHUD);
 
-    // Apply Treatment: Red -> Blue -> Green cycle
-    function applyCountermeasure() {
-      const cur = organStates[selectedOrgan];
-      if (cur === 'red') {
-        organStates[selectedOrgan] = 'blue';
-        sfx.playHeal();
-      } else if (cur === 'blue') {
-        organStates[selectedOrgan] = 'green';
-        sfx.playHeal();
-      } else {
-        organStates[selectedOrgan] = 'red';
-        sfx.playClick();
-      }
-
-      updateCalloutUI(selectedOrgan);
-      selectOrgan(selectedOrgan);
-    }
-
-    function simulateFullBodyRecovery() {
-      sfx.playHeal();
-      Object.keys(organStates).forEach(k => {
-        organStates[k] = (organStates[k] === 'red') ? 'blue' : (organStates[k] === 'blue' ? 'green' : 'red');
-        updateCalloutUI(k);
-      });
-      selectOrgan(selectedOrgan);
-    }
-
-    function updateCalloutUI(key) {
-      const state = organStates[key];
-      const el = document.getElementById(`callout-${key}`);
-      const statusEl = document.getElementById(`status-${key}`);
-
-      el.className = `zoom-callout ${state === 'red' ? 'defect' : (state === 'blue' ? 'recovered' : 'healthy')}`;
-      if (state === 'red') statusEl.textContent = "DEFECT (RED)";
-      else if (state === 'blue') statusEl.textContent = "RECOVERED (BLUE)";
-      else statusEl.textContent = "HEALTHY (GREEN)";
-    }
-
-    // Draw the Connectors Between Callout Circles and Body Target Nodes
-    function updateConnectors() {
-      const w = thermalCanvas.width;
-      const h = thermalCanvas.height;
+    // Position Connector Lines Between SVG Body and 6 Lenses
+    function updateConnectorLines() {
+      const stage = document.getElementById('thermal-stage');
+      const w = stage.clientWidth;
+      const h = stage.clientHeight;
       const cx = w * 0.5;
       const cy = h * 0.5;
 
       function setLine(id, x1, y1, x2, y2) {
-        const line = document.getElementById(id);
-        if (line) {
-          line.setAttribute('x1', x1);
-          line.setAttribute('y1', y1);
-          line.setAttribute('x2', x2);
-          line.setAttribute('y2', y2);
+        const l = document.getElementById(id);
+        if (l) {
+          l.setAttribute('x1', x1);
+          l.setAttribute('y1', y1);
+          l.setAttribute('x2', x2);
+          l.setAttribute('y2', y2);
         }
       }
 
-      setLine('line-neck', w * 0.22, h * 0.20, cx - 10, cy - 110);
-      setLine('line-sans', w * 0.78, h * 0.20, cx + 5, cy - 165);
-      setLine('line-thorax', w * 0.20, h * 0.46, cx - 15, cy - 50);
-      setLine('line-spine', w * 0.80, h * 0.46, cx + 5, cy + 10);
-      setLine('line-ankle', w * 0.22, h * 0.76, cx - 18, cy + 220);
-      setLine('line-femur', w * 0.78, h * 0.76, cx + 22, cy + 90);
+      setLine('line-neck', w * 0.20, h * 0.17, cx - 10, cy - 130);
+      setLine('line-sans', w * 0.80, h * 0.17, cx + 5, cy - 180);
+      setLine('line-thorax', w * 0.18, h * 0.43, cx - 18, cy - 70);
+      setLine('line-spine', w * 0.82, h * 0.43, cx + 5, cy + 10);
+      setLine('line-ankle', w * 0.20, h * 0.73, cx - 15, cy + 220);
+      setLine('line-femur', w * 0.80, h * 0.73, cx + 18, cy + 90);
     }
 
-    // DRAW THE PINTEREST THERMAL / UV RADIATIONAL BODY MAP
-    function renderThermalBody(time) {
-      const w = thermalCanvas.width;
-      const h = thermalCanvas.height;
-      thermalCtx.clearRect(0, 0, w, h);
+    // Inspect Clicked Organ
+    function inspectOrgan(key) {
+      selectedOrgan = key;
+      const data = organData[key];
+      const state = organStates[key];
 
-      const cx = w * 0.5;
-      const cy = h * 0.5;
+      document.getElementById('insp-title').textContent = data.title;
+      document.getElementById('insp-desc').textContent = data.desc;
 
-      // Soft breathing motion
-      const breathe = Math.sin(time * 0.002) * 3;
+      const badge = document.getElementById('insp-badge');
+      const btn = document.getElementById('btn-apply-treatment');
 
-      thermalCtx.save();
-      thermalCtx.translate(cx, cy + breathe);
-
-      // Helper function to get color for an organ state
-      function getColor(state, defaultHot = '#ff1a3c') {
-        if (state === 'red') return defaultHot;
-        if (state === 'blue') return '#0088ff';
-        return '#00ff77';
-      }
-
-      // 1. BASE COOL BLUE FULL BODY SILHOUETTE (T-POSE OUTSTRETCHED LIKE REFERENCE)
-      thermalCtx.beginPath();
-      // Head
-      thermalCtx.arc(0, -170, 26, 0, Math.PI * 2);
-
-      // Torso & Outstretched Arms (T-Pose like Pinterest Image)
-      thermalCtx.moveTo(-26, -145);
-      thermalCtx.lineTo(-80, -135);
-      thermalCtx.lineTo(-190, -115); // Outstretched Left Arm
-      thermalCtx.lineTo(-195, -95);
-      thermalCtx.lineTo(-85, -100);
-      thermalCtx.lineTo(-42, -50);   // Underarm L
-      thermalCtx.lineTo(-38, 45);    // Hip L
-      thermalCtx.lineTo(-32, 140);   // Knee L
-      thermalCtx.lineTo(-24, 230);   // Ankle L
-      thermalCtx.lineTo(-8, 230);
-      thermalCtx.lineTo(-6, 55);     // Inseam
-      thermalCtx.lineTo(6, 55);
-      thermalCtx.lineTo(8, 230);
-      thermalCtx.lineTo(24, 230);    // Ankle R
-      thermalCtx.lineTo(32, 140);    // Knee R
-      thermalCtx.lineTo(38, 45);     // Hip R
-      thermalCtx.lineTo(42, -50);    // Underarm R
-      thermalCtx.lineTo(85, -100);
-      thermalCtx.lineTo(195, -95);   // Outstretched Right Arm
-      thermalCtx.lineTo(190, -115);
-      thermalCtx.lineTo(80, -135);
-      thermalCtx.lineTo(26, -145);
-      thermalCtx.closePath();
-
-      // Deep UV / Cold Navy Base Fill (Pinterest style)
-      thermalCtx.fillStyle = '#061338';
-      thermalCtx.fill();
-      thermalCtx.strokeStyle = 'rgba(0, 136, 255, 0.4)';
-      thermalCtx.lineWidth = 1.5;
-      thermalCtx.stroke();
-
-      // 2. THERMOGRAPHIC GRADIENT OVERLAYS (RED = DEFECT, BLUE = RECOVERED, GREEN = HEALTHY)
-
-      // A. CRANIAL SANS HEATMAP (HEAD)
-      const sansColor = getColor(organStates.sans, '#ff1a3c');
-      const headGrad = thermalCtx.createRadialGradient(0, -170, 4, 0, -170, 32);
-      headGrad.addColorStop(0, sansColor);
-      headGrad.addColorStop(0.5, sansColor === '#ff1a3c' ? '#ffee00' : sansColor);
-      headGrad.addColorStop(0.85, 'rgba(0, 255, 119, 0.4)');
-      headGrad.addColorStop(1, 'transparent');
-      thermalCtx.fillStyle = headGrad;
-      thermalCtx.beginPath();
-      thermalCtx.arc(0, -170, 32, 0, Math.PI * 2);
-      thermalCtx.fill();
-
-      // B. CERVICAL & SPINE COLUMN HEATMAP (NECK & L1-L5 LUMBAR)
-      const neckColor = getColor(organStates.neck, '#ff1a3c');
-      const spineColor = getColor(organStates.spine, '#ff1a3c');
-
-      // Neck spot
-      const neckGrad = thermalCtx.createRadialGradient(0, -120, 2, 0, -120, 24);
-      neckGrad.addColorStop(0, neckColor);
-      neckGrad.addColorStop(0.5, neckColor === '#ff1a3c' ? '#ffee00' : neckColor);
-      neckGrad.addColorStop(1, 'transparent');
-      thermalCtx.fillStyle = neckGrad;
-      thermalCtx.beginPath();
-      thermalCtx.arc(0, -120, 24, 0, Math.PI * 2);
-      thermalCtx.fill();
-
-      // Lumbar Spine Column
-      const spineGrad = thermalCtx.createLinearGradient(0, -100, 0, 40);
-      spineGrad.addColorStop(0, neckColor);
-      spineGrad.addColorStop(0.5, spineColor);
-      spineGrad.addColorStop(1, 'rgba(0, 136, 255, 0.3)');
-
-      thermalCtx.beginPath();
-      thermalCtx.moveTo(0, -100);
-      thermalCtx.lineTo(0, 40);
-      thermalCtx.strokeStyle = spineGrad;
-      thermalCtx.lineWidth = 12;
-      thermalCtx.lineCap = 'round';
-      thermalCtx.stroke();
-
-      // C. THORACIC HEART REGION
-      const thoraxColor = getColor(organStates.thorax, '#0088ff');
-      const thoraxGrad = thermalCtx.createRadialGradient(-12, -70, 4, -12, -70, 30);
-      thoraxGrad.addColorStop(0, thoraxColor);
-      thoraxGrad.addColorStop(0.6, 'rgba(0, 255, 119, 0.3)');
-      thoraxGrad.addColorStop(1, 'transparent');
-      thermalCtx.fillStyle = thoraxGrad;
-      thermalCtx.beginPath();
-      thermalCtx.arc(-12, -70, 30, 0, Math.PI * 2);
-      thermalCtx.fill();
-
-      // D. FEMURS & KNEES (BONE LOSS IN RED)
-      const femurColor = getColor(organStates.femur, '#ff1a3c');
-      [-22, 22].forEach(fx => {
-        const femGrad = thermalCtx.createRadialGradient(fx, 90, 4, fx, 90, 26);
-        femGrad.addColorStop(0, femurColor);
-        femGrad.addColorStop(0.5, femurColor === '#ff1a3c' ? '#ffee00' : femurColor);
-        femGrad.addColorStop(1, 'transparent');
-        thermalCtx.fillStyle = femGrad;
-        thermalCtx.beginPath();
-        thermalCtx.arc(fx, 90, 26, 0, Math.PI * 2);
-        thermalCtx.fill();
-      });
-
-      // E. ANKLES & FEET (HEALTHY IN GREEN)
-      const ankleColor = getColor(organStates.ankle, '#00ff77');
-      [-16, 16].forEach(ax => {
-        const ankGrad = thermalCtx.createRadialGradient(ax, 220, 2, ax, 220, 18);
-        ankGrad.addColorStop(0, ankleColor);
-        ankGrad.addColorStop(0.8, 'transparent');
-        thermalCtx.fillStyle = ankGrad;
-        thermalCtx.beginPath();
-        thermalCtx.arc(ax, 220, 18, 0, Math.PI * 2);
-        thermalCtx.fill();
-      });
-
-      // Target Reticle on Currently Selected Organ
-      drawTargetReticle(selectedOrgan);
-
-      thermalCtx.restore();
-    }
-
-    function drawTargetReticle(key) {
-      let tx = 0, ty = 0;
-      if (key === 'sans') { tx = 0; ty = -170; }
-      else if (key === 'neck') { tx = 0; ty = -120; }
-      else if (key === 'spine') { tx = 0; ty = 10; }
-      else if (key === 'thorax') { tx = -12; ty = -70; }
-      else if (key === 'femur') { tx = 22; ty = 90; }
-      else if (key === 'ankle') { tx = -16; ty = 220; }
-
-      thermalCtx.save();
-      thermalCtx.strokeStyle = '#ffffff';
-      thermalCtx.lineWidth = 1.5;
-      thermalCtx.beginPath();
-      thermalCtx.arc(tx, ty, 28, 0, Math.PI * 2);
-      thermalCtx.stroke();
-
-      thermalCtx.setLineDash([4, 4]);
-      thermalCtx.strokeStyle = 'rgba(255,255,255,0.6)';
-      thermalCtx.beginPath();
-      thermalCtx.arc(tx, ty, 34, 0, Math.PI * 2);
-      thermalCtx.stroke();
-      thermalCtx.restore();
-    }
-
-    // WEBCAM SKELETAL OVERLAY (SIMULATED OR LIVE)
-    function renderCamStage(time) {
-      const w = camCanvas.width;
-      const h = camCanvas.height;
-      camCtx.clearRect(0, 0, w, h);
-
-      if (isWebcamMode && video.readyState >= 2) {
-        camCtx.save();
-        camCtx.drawImage(video, 0, 0, w, h);
-        camCtx.fillStyle = 'rgba(5, 8, 14, 0.45)';
-        camCtx.fillRect(0, 0, w, h);
-        camCtx.restore();
+      if (state === 'red') {
+        badge.className = 'status-badge red';
+        badge.textContent = 'DEFECT (DARK RED)';
+        btn.innerHTML = '<span>⚡</span> Apply NASA Countermeasure';
+      } else if (state === 'blue') {
+        badge.className = 'status-badge blue';
+        badge.textContent = 'RECOVERED (BLUE)';
+        btn.innerHTML = '<span>✔️</span> Stabilize to Healthy (Green)';
       } else {
-        // Space Habitat Simulated Camera Feed
-        camCtx.fillStyle = '#05070d';
-        camCtx.fillRect(0, 0, w, h);
+        badge.className = 'status-badge green';
+        badge.textContent = 'HEALTHY (GREEN)';
+        btn.innerHTML = '<span>🔄</span> Re-simulate Space Defect';
+      }
 
-        // Grid lines
-        camCtx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
-        camCtx.lineWidth = 1;
-        for (let x = 40; x < w; x += 40) {
-          camCtx.beginPath(); camCtx.moveTo(x, 0); camCtx.lineTo(x, h); camCtx.stroke();
-        }
-        for (let y = 40; y < h; y += 40) {
-          camCtx.beginPath(); camCtx.moveTo(0, y); camCtx.lineTo(w, y); camCtx.stroke();
-        }
+      // Move Target Focus Ring in SVG
+      const ring = document.getElementById('target-focus-ring');
+      if (key === 'sans') { ring.setAttribute('cx', 250); ring.setAttribute('cy', 95); }
+      else if (key === 'neck') { ring.setAttribute('cx', 250); ring.setAttribute('cy', 148); }
+      else if (key === 'spine') { ring.setAttribute('cx', 250); ring.setAttribute('cy', 250); }
+      else if (key === 'thorax') { ring.setAttribute('cx', 240); ring.setAttribute('cy', 210); }
+      else if (key === 'femur') { ring.setAttribute('cx', 268); ring.setAttribute('cy', 440); }
+      else if (key === 'ankle') { ring.setAttribute('cx', 236); ring.setAttribute('cy', 625); }
+    }
 
-        // Draw Simulated Astronaut Wireframe
+    // Apply Treatment: Red -> Blue -> Green
+    function applyTreatment() {
+      const cur = organStates[selectedOrgan];
+      if (cur === 'red') {
+        organStates[selectedOrgan] = 'blue';
+      } else if (cur === 'blue') {
+        organStates[selectedOrgan] = 'green';
+      } else {
+        organStates[selectedOrgan] = 'red';
+      }
+
+      updateOrganVisuals(selectedOrgan);
+      inspectOrgan(selectedOrgan);
+      updateDefectCounter();
+    }
+
+    function cycleAllTreatments() {
+      Object.keys(organStates).forEach(k => {
+        organStates[k] = (organStates[k] === 'red') ? 'blue' : (organStates[k] === 'blue' ? 'green' : 'red');
+        updateOrganVisuals(k);
+      });
+      inspectOrgan(selectedOrgan);
+      updateDefectCounter();
+    }
+
+    function updateDefectCounter() {
+      const defectCount = Object.values(organStates).filter(s => s === 'red').length;
+      document.getElementById('defect-counter').textContent = `${defectCount} ACTIVE SPACE HAZARDS`;
+      document.getElementById('defect-counter').style.color = defectCount > 0 ? 'var(--red-defect)' : 'var(--green-healthy)';
+    }
+
+    // Update SVG and Lens DOM classes for a given organ
+    function updateOrganVisuals(key) {
+      const state = organStates[key];
+      const lens = document.getElementById(`lens-${key}`);
+      const tag = document.getElementById(`tag-${key}`);
+
+      // Update Lens DOM
+      lens.className = `anatomical-lens ${state === 'red' ? 'defect' : (state === 'blue' ? 'recovered' : 'healthy')}`;
+      if (state === 'red') tag.textContent = "DEFECT (RED)";
+      else if (state === 'blue') tag.textContent = "RECOVERED (BLUE)";
+      else tag.textContent = "HEALTHY (GREEN)";
+
+      // Update SVG Gradient Stops Dynamically
+      const stopColor = (state === 'red') ? '#ef4444' : ((state === 'blue') ? '#0284c7' : '#10b981');
+      const stop0 = document.getElementById(`stop-${key}-0`);
+      const stop1 = document.getElementById(`stop-${key}-1`);
+      if (stop0) stop0.setAttribute('stop-color', stopColor);
+      if (stop1) stop1.setAttribute('stop-color', state === 'red' ? '#f59e0b' : stopColor);
+    }
+
+    // Toggle Real Live Camera
+    async function toggleLiveWebcam() {
+      if (isLiveCamera) {
+        if (cameraStream) {
+          cameraStream.getTracks().forEach(track => track.stop());
+        }
+        videoElem.style.display = 'none';
+        isLiveCamera = false;
+        document.getElementById('cam-btn-text').textContent = 'ENABLE LIVE WEBCAM';
+        document.getElementById('cam-state-label').textContent = 'SIMULATION STREAM';
+      } else {
+        try {
+          cameraStream = await navigator.mediaDevices.getUserMedia({
+            video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' }
+          });
+          videoElem.srcObject = cameraStream;
+          videoElem.style.display = 'block';
+          isLiveCamera = true;
+          document.getElementById('cam-btn-text').textContent = 'STOP LIVE WEBCAM';
+          document.getElementById('cam-state-label').textContent = 'LIVE HARDWARE OPTICAL SENSOR';
+        } catch (err) {
+          alert("Camera access was not granted or no webcam was detected.\nContinuing with Real-time Astronaut Simulation.");
+        }
+      }
+    }
+
+    // Render Camera Telemetry & Simulation Overlay
+    function renderCameraHUD(time) {
+      const w = hudCanvas.width;
+      const h = hudCanvas.height;
+      hudCtx.clearRect(0, 0, w, h);
+
+      if (!isLiveCamera) {
+        // Draw Simulated Astronaut Body
         const cx = w * 0.5;
         const cy = h * 0.52 + Math.sin(time * 0.002) * 4;
 
-        camCtx.save();
-        camCtx.translate(cx, cy);
+        // Subtle Grid
+        hudCtx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+        hudCtx.lineWidth = 1;
+        for (let x = 40; x < w; x += 40) {
+          hudCtx.beginPath(); hudCtx.moveTo(x, 0); hudCtx.lineTo(x, h); hudCtx.stroke();
+        }
+        for (let y = 40; y < h; y += 40) {
+          hudCtx.beginPath(); hudCtx.moveTo(0, y); hudCtx.lineTo(w, y); hudCtx.stroke();
+        }
 
-        // Skeleton Joint Tracking overlay
-        camCtx.strokeStyle = '#38bdf8';
-        camCtx.lineWidth = 3;
-        camCtx.lineCap = 'round';
+        hudCtx.save();
+        hudCtx.translate(cx, cy);
 
-        // Spine
-        camCtx.beginPath();
-        camCtx.moveTo(0, -120); camCtx.lineTo(0, 40);
-        camCtx.stroke();
-
-        // Arms (T-Pose)
-        camCtx.beginPath();
-        camCtx.moveTo(-160, -90); camCtx.lineTo(-70, -100);
-        camCtx.lineTo(0, -110);
-        camCtx.lineTo(70, -100); camCtx.lineTo(160, -90);
-        camCtx.stroke();
-
-        // Legs
-        camCtx.beginPath();
-        camCtx.moveTo(0, 40); camCtx.lineTo(-30, 130); camCtx.lineTo(-25, 220);
-        camCtx.moveTo(0, 40); camCtx.lineTo(30, 130); camCtx.lineTo(25, 220);
-        camCtx.stroke();
+        // Simulated Coronal Skeleton (Matching T-Pose)
+        hudCtx.strokeStyle = '#38bdf8';
+        hudCtx.lineWidth = 3;
+        hudCtx.lineCap = 'round';
 
         // Head
-        camCtx.beginPath();
-        camCtx.arc(0, -150, 24, 0, Math.PI * 2);
-        camCtx.stroke();
+        hudCtx.beginPath(); hudCtx.arc(0, -150, 24, 0, Math.PI * 2); hudCtx.stroke();
+        // Spine
+        hudCtx.beginPath(); hudCtx.moveTo(0, -120); hudCtx.lineTo(0, 40); hudCtx.stroke();
+        // Arms
+        hudCtx.beginPath();
+        hudCtx.moveTo(-160, -95); hudCtx.lineTo(-70, -100); hudCtx.lineTo(0, -110);
+        hudCtx.lineTo(70, -100); hudCtx.lineTo(160, -95);
+        hudCtx.stroke();
+        // Legs
+        hudCtx.beginPath();
+        hudCtx.moveTo(0, 40); hudCtx.lineTo(-30, 130); hudCtx.lineTo(-25, 220);
+        hudCtx.moveTo(0, 40); hudCtx.lineTo(30, 130); hudCtx.lineTo(25, 220);
+        hudCtx.stroke();
 
-        // Joint Node Dots
-        [[-160, -90], [160, -90], [-70, -100], [70, -100], [0, -110], [0, 40], [-30, 130], [30, 130], [-25, 220], [25, 220]].forEach(([jx, jy]) => {
-          camCtx.fillStyle = '#10b981';
-          camCtx.beginPath();
-          camCtx.arc(jx, jy, 5, 0, Math.PI * 2);
-          camCtx.fill();
+        // Joint Node Tracking Points
+        [[-160, -95], [160, -95], [-70, -100], [70, -100], [0, -110], [0, 40], [-30, 130], [30, 130], [-25, 220], [25, 220]].forEach(([jx, jy]) => {
+          hudCtx.fillStyle = '#10b981';
+          hudCtx.beginPath(); hudCtx.arc(jx, jy, 5, 0, Math.PI * 2); hudCtx.fill();
         });
 
-        camCtx.restore();
-      }
-    }
-
-    // Toggle Camera
-    function toggleCamera() {
-      sfx.playClick();
-      if (isWebcamMode) {
-        if (cameraInstance) cameraInstance.stop();
-        isWebcamMode = false;
-        document.getElementById('cam-btn-label').textContent = 'SWITCH TO WEBCAM';
-        document.getElementById('cam-status').textContent = 'SIMULATED OPTICAL TRACKER';
+        hudCtx.restore();
       } else {
-        try {
-          initWebcam();
-          isWebcamMode = true;
-          document.getElementById('cam-btn-label').textContent = 'STOP WEBCAM';
-          document.getElementById('cam-status').textContent = 'LIVE HARDWARE CAM ACTIVE';
-        } catch (e) {
-          alert("Webcam unavailable. Continuing in Simulated Camera Mode.");
-        }
+        // Live Webcam Framing Reticle
+        hudCtx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
+        hudCtx.lineWidth = 1.5;
+        const corner = 24;
+        const m = 30;
+
+        // Top-Left
+        hudCtx.beginPath(); hudCtx.moveTo(m, m + corner); hudCtx.lineTo(m, m); hudCtx.lineTo(m + corner, m); hudCtx.stroke();
+        // Top-Right
+        hudCtx.beginPath(); hudCtx.moveTo(w - m - corner, m); hudCtx.lineTo(w - m, m); hudCtx.lineTo(w - m, m + corner); hudCtx.stroke();
+        // Bottom-Left
+        hudCtx.beginPath(); hudCtx.moveTo(m, h - m - corner); hudCtx.lineTo(m, h - m); hudCtx.lineTo(m + corner, h - m); hudCtx.stroke();
+        // Bottom-Right
+        hudCtx.beginPath(); hudCtx.moveTo(w - m - corner, h - m); hudCtx.lineTo(w - m, h - m); hudCtx.lineTo(w - m, h - m - corner); hudCtx.stroke();
+
+        // Face / Ocular Tracking Box
+        const fw = 110, fh = 140;
+        hudCtx.strokeStyle = 'rgba(239, 68, 68, 0.7)';
+        hudCtx.setLineDash([4, 4]);
+        hudCtx.strokeRect(w * 0.5 - fw * 0.5, h * 0.25 - fh * 0.5, fw, fh);
+        hudCtx.setLineDash([]);
+
+        hudCtx.fillStyle = '#ef4444';
+        hudCtx.font = "10px 'IBM Plex Mono', monospace";
+        hudCtx.fillText("TRACKING: CRANIAL SANS REGION", w * 0.5 - fw * 0.5, h * 0.25 - fh * 0.5 - 6);
       }
+
+      requestAnimationFrame(renderCameraHUD);
     }
 
-    function initWebcam() {
-      poseInstance = new Pose({
-        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
-      });
-
-      poseInstance.setOptions({
-        modelComplexity: 1,
-        smoothLandmarks: true,
-        minDetectionConfidence: 0.5,
-        minTrackingConfidence: 0.5
-      });
-
-      cameraInstance = new Camera(video, {
-        onFrame: async () => {
-          if (isWebcamMode) await poseInstance.send({ image: video });
-        },
-        width: 1280,
-        height: 720
-      });
-
-      cameraInstance.start();
-    }
-
-    // Animation Loop
-    function mainLoop(time) {
-      renderCamStage(time);
-      renderThermalBody(time);
-      requestAnimationFrame(mainLoop);
-    }
-
-    // Initialize
-    resizeCanvases();
-    selectOrgan('sans');
-    requestAnimationFrame(mainLoop);
+    // Init Everything
+    resizeHUD();
+    inspectOrgan('sans');
+    updateDefectCounter();
+    requestAnimationFrame(renderCameraHUD);
   </script>
 </body>
 </html>
